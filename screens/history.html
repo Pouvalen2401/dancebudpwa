@@ -1,0 +1,268 @@
+<div class="history-screen min-vh-100" style="background: linear-gradient(to bottom, #0a0a0a, #000000);">
+  <div class="container px-4 py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <button class="btn btn-link text-cyan p-0" onclick="Navigation.navigate('home')">
+        <i class="bi bi-arrow-left fs-4 me-2"></i>
+        <span class="fs-6">Back</span>
+      </button>
+      <h4 class="mb-0 fw-bold">Session History</h4>
+      <button class="btn btn-link text-cyan p-0" onclick="clearHistory()">
+        <i class="bi bi-trash fs-5"></i>
+      </button>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="card border-cyan mb-4" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1));">
+      <div class="card-body p-4">
+        <div class="row text-center">
+          <div class="col-4">
+            <h4 class="fw-bold text-cyan mb-1" id="historyTotalSessions">0</h4>
+            <small class="text-muted">Total Sessions</small>
+          </div>
+          <div class="col-4">
+            <h4 class="fw-bold text-purple mb-1" id="historyAvgScore">0%</h4>
+            <small class="text-muted">Avg Score</small>
+          </div>
+          <div class="col-4">
+            <h4 class="fw-bold text-pink mb-1" id="historyTotalTime">0h</h4>
+            <small class="text-muted">Total Time</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-pills mb-4 justify-content-center" id="historyTabs">
+      <li class="nav-item">
+        <button class="nav-link active" onclick="filterHistory('all')">All</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="filterHistory('today')">Today</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="filterHistory('week')">This Week</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="filterHistory('month')">This Month</button>
+      </li>
+    </ul>
+
+    <!-- Session List -->
+    <div id="sessionsList">
+      <!-- Sessions will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+      <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+      <h5 class="text-muted mb-2">No Sessions Yet</h5>
+      <p class="text-muted small mb-4">Start practicing to see your history!</p>
+      <button class="btn btn-primary" onclick="Navigation.navigate('home')">
+        <i class="bi bi-play-circle me-2"></i>
+        Start First Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.nav-pills .nav-link {
+  background: transparent;
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin: 0 4px;
+  font-size: 14px;
+}
+.nav-pills .nav-link.active {
+  background: var(--neon-cyan);
+  color: white;
+}
+.session-item {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.session-item:hover {
+  transform: translateX(5px);
+}
+</style>
+
+<script>
+let allSessions = [];
+let currentFilter = 'all';
+
+async function loadHistoryData() {
+  try {
+    // Get all sessions from database (Member 3's work)
+    allSessions = await Database.getAllSessions();
+    
+    // Update summary stats
+    const stats = await Database.getStatistics();
+    document.getElementById('historyTotalSessions').textContent = stats.totalSessions || 0;
+    document.getElementById('historyAvgScore').textContent = Math.round(stats.avgScore || 0) + '%';
+    document.getElementById('historyTotalTime').textContent = formatTime(stats.totalTime || 0);
+    
+    // Display sessions
+    displaySessions(allSessions);
+  } catch (error) {
+    console.error('Error loading history:', error);
+  }
+}
+
+function displaySessions(sessions) {
+  const listElement = document.getElementById('sessionsList');
+  const emptyElement = document.getElementById('emptyState');
+  
+  if (!sessions || sessions.length === 0) {
+    listElement.style.display = 'none';
+    emptyElement.style.display = 'block';
+    return;
+  }
+  
+  listElement.style.display = 'block';
+  emptyElement.style.display = 'none';
+  
+  listElement.innerHTML = sessions.map(session => `
+    <div class="card border-secondary mb-3 session-item" onclick="viewSessionDetail(${session.id})">
+      <div class="card-body p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center mb-2">
+              <div class="me-2" style="font-size: 24px;">${getRoutineIcon(session.routineName)}</div>
+              <div>
+                <h6 class="mb-0 fw-bold">${session.routineName || 'Practice Session'}</h6>
+                <small class="text-muted">${formatDate(session.date)}</small>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-3 mt-2">
+              <small class="text-muted">
+                <i class="bi bi-clock text-cyan me-1"></i>
+                ${session.duration}
+              </small>
+              <small class="text-muted">
+                <i class="bi bi-activity text-purple me-1"></i>
+                ${session.steps} steps
+              </small>
+              <small class="text-muted">
+                <i class="bi bi-arrow-repeat text-pink me-1"></i>
+                ${session.turns} turns
+              </small>
+            </div>
+          </div>
+          
+          <div class="text-end">
+            <div class="badge ${getScoreBadgeColor(session.score)} fs-5 mb-2">
+              ${Math.round(session.score)}%
+            </div>
+            <div>
+              <small class="text-muted">${session.avgBPM} BPM</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterHistory(filter) {
+  currentFilter = filter;
+  
+  // Update active tab
+  document.querySelectorAll('#historyTabs .nav-link').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Filter sessions
+  let filteredSessions = allSessions;
+  const now = new Date();
+  
+  switch(filter) {
+    case 'today':
+      filteredSessions = allSessions.filter(s => {
+        const sessionDate = new Date(s.date);
+        return sessionDate.toDateString() === now.toDateString();
+      });
+      break;
+    case 'week':
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filteredSessions = allSessions.filter(s => new Date(s.date) >= weekAgo);
+      break;
+    case 'month':
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      filteredSessions = allSessions.filter(s => new Date(s.date) >= monthAgo);
+      break;
+  }
+  
+  displaySessions(filteredSessions);
+}
+
+function getRoutineIcon(routineName) {
+  const icons = {
+    'hip-hop': '🎤',
+    'contemporary': '💃',
+    'ballet': '🩰',
+    'latin': '💫',
+    'freestyle': '⚡'
+  };
+  return icons[routineName?.toLowerCase()] || '🎵';
+}
+
+function getScoreBadgeColor(score) {
+  if (score >= 90) return 'bg-success';
+  if (score >= 75) return 'bg-primary';
+  if (score >= 60) return 'bg-warning';
+  return 'bg-danger';
+}
+
+function viewSessionDetail(sessionId) {
+  // Show session details in modal or navigate to detail screen
+  alert(`Session details for ID: ${sessionId}\n\nDetailed view coming soon!`);
+}
+
+async function clearHistory() {
+  if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
+    try {
+      await Database.clearAllSessions();
+      allSessions = [];
+      displaySessions([]);
+      
+      // Update stats
+      document.getElementById('historyTotalSessions').textContent = '0';
+      document.getElementById('historyAvgScore').textContent = '0%';
+      document.getElementById('historyTotalTime').textContent = '0h';
+      
+      alert('✅ History cleared successfully!');
+    } catch (error) {
+      console.error('Error clearing history:', error);
+      alert('❌ Failed to clear history');
+    }
+  }
+}
+
+function formatTime(seconds) {
+  if (!seconds) return '0m';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffDays === 0) return 'Today, ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  if (diffDays === 1) return 'Yesterday, ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  return date.toLocaleDateString() + ', ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+// Load data when screen opens
+loadHistoryData();
+</script>
