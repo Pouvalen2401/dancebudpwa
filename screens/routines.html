@@ -1,0 +1,163 @@
+<div class="routines-screen min-vh-100" style="background: linear-gradient(to bottom, #0a0a0a, #000000);">
+  <div class="container px-4 py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <button class="btn btn-link text-cyan p-0" onclick="Navigation.navigate('home')">
+        <i class="bi bi-arrow-left fs-4 me-2"></i>
+        <span class="fs-6">Back</span>
+      </button>
+      <h4 class="mb-0 fw-bold">Dance Routines</h4>
+      <div style="width: 80px;"></div>
+    </div>
+    <p class="text-center text-muted mb-4">
+      Choose a dance style or create your own freestyle session
+    </p>
+    <!-- Routine Cards -->
+    <div class="routines-list">
+      <!-- Hip Hop -->
+      <div class="card border-purple mb-3 routine-card" onclick="selectRoutine('hip-hop')">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center flex-grow-1">
+              <div class="routine-icon me-3">
+ 🎤
+ </div>
+              <div>
+                <h5 class="mb-1 fw-bold">Hip Hop</h5>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-purple">Intermediate</span>
+                  <span class="badge bg-secondary">15 min</span>
+                </div>
+                <p class="text-muted small mb-0">Urban dance with rhythm and style</p>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
+          </div>
+        </div>
+      </div>
+      <!-- Contemporary -->
+      <div class="card border-cyan mb-3 routine-card" onclick="selectRoutine('contemporary')">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center flex-grow-1">
+              <div class="routine-icon me-3">
+ 💃
+ </div>
+              <div>
+                <h5 class="mb-1 fw-bold">Contemporary</h5>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-danger">Advanced</span>
+                  <span class="badge bg-secondary">20 min</span>
+                </div>
+                <p class="text-muted small mb-0">Expressive modern dance movements</p>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
+          </div>
+        </div>
+      </div>
+      <!-- Ballet Basics -->
+      <div class="card border-pink mb-3 routine-card" onclick="selectRoutine('ballet')">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center flex-grow-1">
+              <div class="routine-icon me-3">
+ 🩰
+ </div>
+              <div>
+                <h5 class="mb-1 fw-bold">Ballet Basics</h5>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-success">Beginner</span>
+                  <span class="badge bg-secondary">25 min</span>
+                </div>
+                <p class="text-muted small mb-0">Classical ballet fundamentals</p>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
+          </div>
+        </div>
+      </div>
+      <!-- Latin Dance -->
+      <div class="card border-warning mb-3 routine-card" onclick="selectRoutine('latin')">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center flex-grow-1">
+              <div class="routine-icon me-3">
+ 💫
+ </div>
+              <div>
+                <h5 class="mb-1 fw-bold">Latin Dance</h5>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-purple">Intermediate</span>
+                  <span class="badge bg-secondary">18 min</span>
+                </div>
+                <p class="text-muted small mb-0">Salsa, bachata, and merengue</p>
+              </div>
+            </div>
+<i class="bi bi-chevron-right fs-4 text-muted"></i>
+ </div>
+ </div>
+ </div>
+ <!-- Freestyle -->
+ <div class="card border-cyan mb-3 routine-card" onclick="selectRoutine('freestyle')">
+ <div class="card-body p-4">
+ <div class="d-flex align-items-center justify-content-between">
+ <div class="d-flex align-items-center flex-grow-1">
+ <div class="routine-icon me-3">
+ ⚡
+ </div>
+ <div>
+ <h5 class="mb-1 fw-bold">Freestyle</h5>
+ <div class="d-flex gap-2 mb-2">
+ <span class="badge bg-info">All Levels</span>
+ <span class="badge bg-secondary">Custom</span>
+ </div>
+ <p class="text-muted small mb-0">Dance your own way, no rules!</p>
+ </div>
+ </div>
+ <i class="bi bi-chevron-right fs-4 text-muted"></i>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <style>
+ .routine-icon {
+ font-size: 48px;
+ width: 60px;
+ height: 60px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ }
+ .routine-card {
+ transition: all 0.3s ease;
+ cursor: pointer;
+ }
+ .routine-card:hover {
+ transform: translateX(5px);
+ box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3);
+ }
+ </style>
+Task 1.4: Create screens/history.html
+ <script>
+ function selectRoutine(routineType) {
+  // Save selected routine to database
+  Database.setSelectedRoutine(routineType);
+  
+  // Navigate to permissions (if not already granted) or practice
+  checkPermissionsAndNavigate();
+ }
+ async function checkPermissionsAndNavigate() {
+  const permissions = await Database.getPermissionStatus();
+  
+  if (permissions && permissions.camera && permissions.microphone && permissions.motion) {
+    // All required permissions granted, go directly to practice
+    Navigation.navigate('practice');
+  } else {
+    // Need to grant permissions first
+    Navigation.navigate('permissions');
+  }
+ }
+ </script>

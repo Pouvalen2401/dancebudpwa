@@ -1,0 +1,367 @@
+<div class="settings-screen min-vh-100" style="background: linear-gradient(to bottom, #0a0a0a, #000000);">
+  <div class="container px-4 py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <button class="btn btn-link text-cyan p-0" onclick="Navigation.navigate('home')">
+        <i class="bi bi-arrow-left fs-4 me-2"></i>
+        <span class="fs-6">Back</span>
+      </button>
+      <h4 class="mb-0 fw-bold">Settings</h4>
+      <div style="width: 80px;"></div>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="card border-cyan mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-cyan">
+          <i class="bi bi-person-circle me-2"></i>
+          Profile
+        </h6>
+        
+        <div class="mb-3">
+          <label class="form-label text-muted small">Display Name</label>
+          <div class="input-group">
+            <input type="text" class="form-control bg-dark text-white border-secondary" 
+                   id="userNameInput" placeholder="Enter your name">
+            <button class="btn btn-outline-cyan" onclick="saveUserName()">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor Configuration -->
+    <div class="card border-purple mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-purple">
+          <i class="bi bi-sliders me-2"></i>
+          Sensor Configuration
+        </h6>
+        
+        <!-- Camera Quality -->
+        <div class="mb-3">
+          <label class="form-label text-muted small">Camera Quality</label>
+          <select class="form-select bg-dark text-white border-secondary" id="cameraQuality">
+            <option value="high">High (Best quality, slower)</option>
+            <option value="medium" selected>Medium (Balanced)</option>
+            <option value="low">Low (Faster, lower quality)</option>
+          </select>
+        </div>
+        
+        <!-- Microphone Sensitivity -->
+        <div class="mb-3">
+          <label class="form-label text-muted small">Microphone Sensitivity</label>
+          <input type="range" class="form-range" id="micSensitivity" 
+                 min="0" max="100" value="75">
+          <div class="d-flex justify-content-between text-muted small">
+            <span>Low</span>
+            <span id="micSensitivityValue">75%</span>
+            <span>High</span>
+          </div>
+        </div>
+        
+        <!-- Motion Sensor Calibration -->
+        <div class="mb-3">
+          <label class="form-label text-muted small">Motion Sensors</label>
+          <button class="btn btn-outline-purple w-100" onclick="calibrateMotion()">
+            <i class="bi bi-arrow-repeat me-2"></i>
+            Calibrate Sensors
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Settings -->
+    <div class="card border-pink mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-pink">
+          <i class="bi bi-eye me-2"></i>
+          Display
+        </h6>
+        
+        <!-- Show Pose Skeleton -->
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+          <div>
+            <div class="fw-semibold">Show Pose Skeleton</div>
+            <small class="text-muted">Display body tracking overlay</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showSkeleton" checked>
+          </div>
+        </div>
+        
+        <!-- Real-time Feedback -->
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+          <div>
+            <div class="fw-semibold">Real-time Feedback</div>
+            <small class="text-muted">Show live posture corrections</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showFeedback" checked>
+          </div>
+        </div>
+        
+        <!-- BPM Display -->
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">BPM Display</div>
+            <small class="text-muted">Show beats per minute</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showBPM" checked>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Settings -->
+    <div class="card border-warning mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-warning">
+          <i class="bi bi-bell me-2"></i>
+          Notifications
+        </h6>
+        
+        <!-- Practice Reminders -->
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+          <div>
+            <div class="fw-semibold">Practice Reminders</div>
+            <small class="text-muted">Daily practice notifications</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="practiceReminders">
+          </div>
+        </div>
+        
+        <!-- Online Status -->
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">Online Status Alerts</div>
+            <small class="text-muted">Notify when back online</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="onlineAlerts" checked>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="card border-danger mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-danger">
+          <i class="bi bi-database me-2"></i>
+          Data Management
+        </h6>
+        
+        <!-- Export Data -->
+        <button class="btn btn-outline-info w-100 mb-3" onclick="exportData()">
+          <i class="bi bi-download me-2"></i>
+          Export All Data (JSON)
+        </button>
+        
+        <!-- Clear All Data -->
+        <button class="btn btn-outline-danger w-100" onclick="clearAllData()">
+          <i class="bi bi-trash me-2"></i>
+          Clear All Data
+        </button>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="card border-cyan mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3 text-cyan">
+          <i class="bi bi-info-circle me-2"></i>
+          About
+        </h6>
+        
+        <div class="d-flex align-items-center mb-3">
+          <div class="logo-small me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); border-radius: 14px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-lightning-charge-fill text-white" style="font-size: 24px; transform: rotate(-45deg);"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 fw-bold">DanceBud</h6>
+            <small class="text-muted">Version 1.0.0</small>
+          </div>
+        </div>
+        
+        <p class="text-muted small mb-0">
+          Your AI-powered dance coach using smartphone sensors to improve your moves.
+        </p>
+      </div>
+    </div>
+
+    <!-- Save Settings Button -->
+    <button class="btn btn-primary w-100 py-3 mb-4" onclick="saveSettings()">
+      <i class="bi bi-check-circle me-2"></i>
+      Save All Settings
+    </button>
+  </div>
+</div>
+
+<style>
+.btn-outline-cyan {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.btn-outline-cyan:hover {
+  background: var(--neon-cyan);
+  color: white;
+}
+.btn-outline-purple {
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+}
+.btn-outline-purple:hover {
+  background: var(--neon-purple);
+  color: white;
+}
+.form-check-input:checked {
+  background-color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+.form-range::-webkit-slider-thumb {
+  background: var(--neon-cyan);
+}
+</style>
+
+<script>
+// Load saved settings
+async function loadSettings() {
+  try {
+    const settings = await Database.getSettings();
+    
+    if (settings) {
+      // Profile
+      document.getElementById('userNameInput').value = settings.userName || '';
+      
+      // Sensors
+      document.getElementById('cameraQuality').value = settings.cameraQuality || 'medium';
+      document.getElementById('micSensitivity').value = settings.micSensitivity || 75;
+      updateMicSensitivityDisplay(settings.micSensitivity || 75);
+      
+      // Display
+      document.getElementById('showSkeleton').checked = settings.showSkeleton !== false;
+      document.getElementById('showFeedback').checked = settings.showFeedback !== false;
+      document.getElementById('showBPM').checked = settings.showBPM !== false;
+      
+      // Notifications
+      document.getElementById('practiceReminders').checked = settings.practiceReminders || false;
+      document.getElementById('onlineAlerts').checked = settings.onlineAlerts !== false;
+    }
+  } catch (error) {
+    console.error('Error loading settings:', error);
+  }
+}
+
+// Microphone sensitivity display
+document.getElementById('micSensitivity').addEventListener('input', (e) => {
+  updateMicSensitivityDisplay(e.target.value);
+});
+
+function updateMicSensitivityDisplay(value) {
+  document.getElementById('micSensitivityValue').textContent = value + '%';
+}
+
+// Save user name
+async function saveUserName() {
+  const userName = document.getElementById('userNameInput').value.trim();
+  
+  if (!userName) {
+    alert('Please enter a name');
+    return;
+  }
+  
+  try {
+    await Database.saveUserName(userName);
+    alert('✅ Name saved!');
+  } catch (error) {
+    console.error('Error saving name:', error);
+    alert('❌ Failed to save name');
+  }
+}
+
+// Calibrate motion sensors
+async function calibrateMotion() {
+  if (confirm('Place your device on a flat surface and keep it still for 3 seconds.')) {
+    try {
+      await MotionModule.calibrate();
+      alert('✅ Sensors calibrated successfully!');
+    } catch (error) {
+      console.error('Calibration error:', error);
+      alert('❌ Calibration failed');
+    }
+  }
+}
+
+// Save all settings
+async function saveSettings() {
+  try {
+    const settings = {
+      userName: document.getElementById('userNameInput').value.trim(),
+      cameraQuality: document.getElementById('cameraQuality').value,
+      micSensitivity: parseInt(document.getElementById('micSensitivity').value),
+      showSkeleton: document.getElementById('showSkeleton').checked,
+      showFeedback: document.getElementById('showFeedback').checked,
+      showBPM: document.getElementById('showBPM').checked,
+      practiceReminders: document.getElementById('practiceReminders').checked,
+      onlineAlerts: document.getElementById('onlineAlerts').checked
+    };
+    
+    await Database.saveSettings(settings);
+    alert('✅ Settings saved successfully!');
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    alert('❌ Failed to save settings');
+  }
+}
+
+// Export data
+async function exportData() {
+  try {
+    const data = await Database.exportAllData();
+    
+    // Create downloadable JSON file
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `dancebudpwa-data-${Date.now()}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    
+    alert('✅ Data exported successfully!');
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    alert('❌ Failed to export data');
+  }
+}
+
+// Clear all data
+async function clearAllData() {
+  if (confirm('⚠️ Are you sure you want to delete ALL data? This cannot be undone!\n\nThis will delete:\n- All session history\n- All statistics\n- All settings\n\nType YES to confirm') && 
+      prompt('Type YES in capitals to confirm') === 'YES') {
+    try {
+      await Database.clearAllData();
+      alert('✅ All data cleared successfully!');
+      
+      // Reload settings page
+      loadSettings();
+      
+      // Navigate to home
+      setTimeout(() => Navigation.navigate('splash'), 1000);
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      alert('❌ Failed to clear data');
+    }
+  }
+}
+
+// Load settings on page load
+loadSettings();
+</script>
