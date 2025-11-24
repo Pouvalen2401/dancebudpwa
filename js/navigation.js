@@ -11,35 +11,42 @@ const Navigation = {
    */
   async navigate(screenName) {
     console.log(`🧭 Navigating to: ${screenName}`);
+    console.log(`📂 Looking for: screens/${screenName}.html`);
     
     try {
       // Load screen HTML
       const screenContent = await this.loadScreen(screenName);
       
-      // Update app container with fade transition
+      // Update app container with fade effect
       const appContainer = document.getElementById('app-container');
+      
+      if (!appContainer) {
+        console.error('❌ #app-container not found!');
+        return;
+      }
+      
+      console.log('✅ Updating app container...');
+      
+      // Smooth transition
       appContainer.style.opacity = '0';
+      appContainer.style.transition = 'opacity 0.3s ease';
       
       setTimeout(() => {
         appContainer.innerHTML = screenContent;
         appContainer.style.opacity = '1';
-        appContainer.style.transition = 'opacity 0.3s ease';
+        
+        // Initialize screen-specific functionality
+        this.initializeScreen(screenName);
+        
+        // Update current screen
+        this.currentScreen = screenName;
+        
+        console.log('✅ Navigation complete!');
       }, 300);
-      
-      // Initialize screen-specific functionality
-      this.initializeScreen(screenName);
-      
-      // Update current screen
-      this.currentScreen = screenName;
-      
-      // Announce to screen readers
-      if (window.announceToScreenReader) {
-        window.announceToScreenReader(`Navigated to ${screenName} screen`);
-      }
       
     } catch (error) {
       console.error('❌ Navigation error:', error);
-      this.showError(screenName);
+      this.showError(screenName, error);
     }
   },
 
@@ -49,13 +56,26 @@ const Navigation = {
    * @returns {Promise<string>} Screen HTML content
    */
   async loadScreen(screenName) {
-    const response = await fetch(`screens/${screenName}.html`);
+    const path = `screens/${screenName}.html`;
+    console.log(`📄 Fetching: ${path}`);
     
-    if (!response.ok) {
-      throw new Error(`Screen not found: ${screenName}`);
+    try {
+      const response = await fetch(path);
+      console.log(`📡 Response status: ${response.status}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Cannot load ${path}`);
+      }
+      
+      const content = await response.text();
+      console.log(`✅ Loaded ${content.length} characters`);
+      
+      return content;
+      
+    } catch (fetchError) {
+      console.error('❌ Fetch failed:', fetchError);
+      throw fetchError;
     }
-    
-    return await response.text();
   },
 
   /**
@@ -63,47 +83,48 @@ const Navigation = {
    * @param {string} screenName - Name of the current screen
    */
   initializeScreen(screenName) {
-    console.log(`🎬 Initializing screen: ${screenName}`);
+    console.log(`🎬 Initializing: ${screenName}`);
     
     switch(screenName) {
       case 'splash':
         // Auto-navigate to home after 3 seconds
-        setTimeout(() => this.navigate('home'), 3000);
+        console.log('⏰ Setting timer for home navigation...');
+        setTimeout(() => {
+          console.log('⏰ Navigating to home...');
+          this.navigate('home');
+        }, 3000);
         break;
         
       case 'home':
-        // Home screen is ready
-        console.log('🏠 Home screen loaded');
+        console.log('🏠 Home screen ready');
         break;
         
       case 'permissions':
-        // Request permissions
-        console.log('🔐 Permissions screen loaded');
+        console.log('🔐 Permissions screen ready');
         break;
         
       case 'practice':
-        // Start camera, audio, motion sensors
-        console.log('💃 Practice screen loaded');
-        if (typeof CameraModule !== 'undefined' && CameraModule.start) {
-          // CameraModule.start();
+        console.log('💃 Practice screen ready');
+        // Initialize camera, audio, motion sensors
+        if (typeof CameraModule !== 'undefined' && CameraModule.init) {
+          // CameraModule.init();
         }
         break;
         
       case 'summary':
-        // Display session results
-        console.log('📊 Summary screen loaded');
+        console.log('📊 Summary screen ready');
         break;
         
       case 'routines':
-        console.log('📋 Routines screen loaded');
+        console.log('📋 Routines screen ready');
         break;
         
       case 'history':
-        console.log('📜 History screen loaded');
+        console.log('📜 History screen ready');
         break;
         
       case 'settings':
-        console.log('⚙️ Settings screen loaded');
+        console.log('⚙️ Settings screen ready');
         break;
         
       default:
@@ -114,23 +135,65 @@ const Navigation = {
   /**
    * Show error screen
    * @param {string} screenName - Name of the screen that failed
+   * @param {Error} error - The error object
    */
-  showError(screenName) {
+  showError(screenName, error) {
+    console.log('🚨 Showing error screen...');
     const appContainer = document.getElementById('app-container');
+    
+    if (!appContainer) {
+      console.error('❌ Cannot show error: app-container not found!');
+      return;
+    }
+    
     appContainer.innerHTML = `
-      <div class="min-vh-100 d-flex align-items-center justify-content-center p-4">
-        <div class="text-center">
+      <div class="min-vh-100 d-flex align-items-center justify-content-center p-4" style="background: #000;">
+        <div class="text-center" style="max-width: 600px;">
           <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
-          <h2 class="mt-4 mb-3">Screen Not Found</h2>
-          <p class="text-muted mb-4">Could not load: ${screenName}.html</p>
-          <button class="btn btn-primary" onclick="Navigation.navigate('home')">
-            <i class="bi bi-house-fill me-2"></i>Go Home
+          <h2 class="mt-4 mb-3 text-white">Screen Not Found</h2>
+          <p class="text-muted mb-2">Could not load: <code>screens/${screenName}.html</code></p>
+          
+          <div class="alert alert-danger text-start mt-3">
+            <strong>Error Details:</strong><br>
+            ${error.message}
+          </div>
+          
+          <div class="bg-dark p-3 rounded text-start mt-3 small text-muted">
+            <strong>🔍 Debug Info:</strong><br>
+            <strong>Current URL:</strong> ${window.location.href}<br>
+            <strong>Looking for:</strong> ${window.location.origin}${window.location.pathname.replace('index.html', '')}screens/${screenName}.html<br>
+            <strong>Protocol:</strong> ${window.location.protocol}<br>
+            <strong>Tip:</strong> Make sure you're using Live Server (http://) not file://
+          </div>
+          
+          <button class="btn btn-primary mt-4" onclick="location.reload()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Reload App
+          </button>
+          
+          <button class="btn btn-outline-secondary mt-2" onclick="Navigation.navigate('home')">
+            <i class="bi bi-house-fill me-2"></i>Try Home
           </button>
         </div>
       </div>
     `;
+  },
+
+  /**
+   * Navigate back to previous screen
+   */
+  goBack() {
+    console.log('⬅️ Going back...');
+    // You can implement history tracking here
+    this.navigate('home');
   }
 };
 
 // Make Navigation globally available
 window.Navigation = Navigation;
+console.log('✅ Navigation module loaded');
+console.log('📂 Current URL:', window.location.href);
+
+// Export for potential module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Navigation;
+}
