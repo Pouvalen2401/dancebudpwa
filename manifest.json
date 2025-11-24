@@ -1,7 +1,7 @@
 {
-  "name": "DanceBud - AI Dance Coach",
+  "name": "DanceBud - Pocket-sized Dance Coach",
   "short_name": "DanceBud",
-  "description": "AI-powered dance coaching app using smartphone sensors",
+  "description": "Dance coaching app using smartphone sensors",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
