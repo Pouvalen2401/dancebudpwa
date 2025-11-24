@@ -1,0 +1,469 @@
+<!-- Permissions Screen Partial - No HTML/HEAD/BODY tags -->
+<style>
+  /* Permissions Screen Specific Styles */
+  #app-container {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    color: #ffffff;
+    min-height: 100vh;
+  }
+  
+  .permissions-container {
+    display: grid;
+    gap: 32px;
+    padding: 40px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    align-content: center;
+  }
+  
+  .permissions-header {
+    display: grid;
+    gap: 16px;
+    text-align: center;
+    justify-items: center;
+  }
+  
+  .permissions-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .permissions-icon i {
+    font-size: 50px;
+    color: white;
+  }
+  
+  .permissions-title {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #06b6d4, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .permissions-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  
+  .permissions-list {
+    display: grid;
+    gap: 16px;
+  }
+  
+  .permission-card {
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.6), rgba(20, 20, 35, 0.6));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+  }
+  
+  .permission-card:hover {
+    border-color: rgba(59, 130, 246, 0.6);
+    transform: translateX(5px);
+  }
+  
+  .permission-card.granted {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+  }
+  
+  .permission-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+  }
+  
+  .permission-card.granted .permission-icon-wrapper {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3));
+  }
+  
+  .permission-icon-wrapper i {
+    font-size: 24px;
+    color: #3b82f6;
+  }
+  
+  .permission-card.granted .permission-icon-wrapper i {
+    color: #10b981;
+  }
+  
+  .permission-text {
+    display: grid;
+    gap: 4px;
+  }
+  
+  .permission-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .permission-description {
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  
+  .permission-status {
+    display: grid;
+    place-items: center;
+  }
+  
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .status-badge.pending {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+  }
+  
+  .status-badge.granted {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+  
+  .status-badge.denied {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
+  
+  .permissions-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .btn-grant-all {
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    border: none;
+    border-radius: 16px;
+    padding: 18px 32px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3);
+  }
+  
+  .btn-grant-all:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 50px rgba(6, 182, 212, 0.5);
+  }
+  
+  .btn-grant-all:disabled {
+    background: linear-gradient(135deg, #4b5563, #6b7280);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .btn-skip {
+    background: transparent;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: 16px;
+    padding: 16px 32px;
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-skip:hover {
+    border-color: rgba(148, 163, 184, 0.6);
+    color: #cbd5e1;
+  }
+  
+  .info-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  
+  .info-icon {
+    color: #3b82f6;
+    font-size: 20px;
+  }
+  
+  .info-text {
+    font-size: 14px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  
+  @media (max-width: 576px) {
+    .permissions-container {
+      padding: 32px 16px;
+    }
+    
+    .permissions-title {
+      font-size: 24px;
+    }
+    
+    .permissions-icon {
+      width: 80px;
+      height: 80px;
+    }
+    
+    .permissions-icon i {
+      font-size: 40px;
+    }
+  }
+</style>
+
+<div class="permissions-container">
+  <!-- Header -->
+  <div class="permissions-header">
+    <div class="permissions-icon">
+      <i class="bi bi-shield-lock-fill"></i>
+    </div>
+    <h1 class="permissions-title">Grant Permissions</h1>
+    <p class="permissions-subtitle">DanceBud needs access to your device sensors to provide the best dance practice experience</p>
+  </div>
+
+  <!-- Permissions List -->
+  <div class="permissions-list">
+    <!-- Camera Permission -->
+    <div class="permission-card" id="camera-card">
+      <div class="permission-icon-wrapper">
+        <i class="bi bi-camera-video-fill"></i>
+      </div>
+      <div class="permission-text">
+        <div class="permission-name">Camera Access</div>
+        <div class="permission-description">Track your movements and poses in real-time</div>
+      </div>
+      <div class="permission-status">
+        <span class="status-badge pending" id="camera-status">Pending</span>
+      </div>
+    </div>
+
+    <!-- Microphone Permission -->
+    <div class="permission-card" id="microphone-card">
+      <div class="permission-icon-wrapper">
+        <i class="bi bi-mic-fill"></i>
+      </div>
+      <div class="permission-text">
+        <div class="permission-name">Microphone Access</div>
+        <div class="permission-description">Detect music tempo and rhythm for your practice</div>
+      </div>
+      <div class="permission-status">
+        <span class="status-badge pending" id="microphone-status">Pending</span>
+      </div>
+    </div>
+
+    <!-- Motion Permission -->
+    <div class="permission-card" id="motion-card">
+      <div class="permission-icon-wrapper">
+        <i class="bi bi-phone-fill"></i>
+      </div>
+      <div class="permission-text">
+        <div class="permission-name">Motion Sensors</div>
+        <div class="permission-description">Use accelerometer and gyroscope for movement tracking</div>
+      </div>
+      <div class="permission-status">
+        <span class="status-badge pending" id="motion-status">Pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="info-card">
+    <i class="bi bi-info-circle-fill info-icon"></i>
+    <div class="info-text">
+      <strong>Privacy First:</strong> Your data stays on your device. We never upload videos or personal information to any server.
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="permissions-actions">
+    <button class="btn-grant-all" onclick="requestAllPermissions()">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      Grant All Permissions
+    </button>
+    <button class="btn-skip" onclick="skipPermissions()">
+      Skip for Now
+    </button>
+  </div>
+</div>
+
+<script>
+  // Permission state
+  const permissionState = {
+    camera: 'pending',
+    microphone: 'pending',
+    motion: 'pending'
+  };
+
+  // Request all permissions
+  async function requestAllPermissions() {
+    console.log('🔐 Requesting all permissions...');
+    
+    // Request camera
+    await requestCameraPermission();
+    
+    // Request microphone
+    await requestMicrophonePermission();
+    
+    // Request motion sensors
+    await requestMotionPermission();
+    
+    // Check if all granted
+    setTimeout(() => {
+      checkAllPermissions();
+    }, 1000);
+  }
+
+  // Request camera permission
+  async function requestCameraPermission() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      updatePermissionStatus('camera', 'granted');
+      console.log('✅ Camera permission granted');
+    } catch (error) {
+      updatePermissionStatus('camera', 'denied');
+      console.error('❌ Camera permission denied:', error);
+    }
+  }
+
+  // Request microphone permission
+  async function requestMicrophonePermission() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      updatePermissionStatus('microphone', 'granted');
+      console.log('✅ Microphone permission granted');
+    } catch (error) {
+      updatePermissionStatus('microphone', 'denied');
+      console.error('❌ Microphone permission denied:', error);
+    }
+  }
+
+  // Request motion permission
+  async function requestMotionPermission() {
+    // For iOS 13+
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const permission = await DeviceMotionEvent.requestPermission();
+        if (permission === 'granted') {
+          updatePermissionStatus('motion', 'granted');
+          console.log('✅ Motion permission granted');
+        } else {
+          updatePermissionStatus('motion', 'denied');
+        }
+      } catch (error) {
+        updatePermissionStatus('motion', 'denied');
+        console.error('❌ Motion permission denied:', error);
+      }
+    } else {
+      // Motion sensors available without explicit permission
+      updatePermissionStatus('motion', 'granted');
+      console.log('✅ Motion sensors available');
+    }
+  }
+
+  // Update permission status in UI
+  function updatePermissionStatus(permission, status) {
+    permissionState[permission] = status;
+    
+    const card = document.getElementById(`${permission}-card`);
+    const badge = document.getElementById(`${permission}-status`);
+    
+    if (!card || !badge) return;
+    
+    // Update badge
+    badge.className = `status-badge ${status}`;
+    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    
+    // Update card style
+    if (status === 'granted') {
+      card.classList.add('granted');
+    } else {
+      card.classList.remove('granted');
+    }
+  }
+
+  // Check if all permissions granted
+  function checkAllPermissions() {
+    const allGranted = Object.values(permissionState).every(status => status === 'granted');
+    
+    if (allGranted) {
+      console.log('🎉 All permissions granted!');
+      setTimeout(() => {
+        navigateToHome();
+      }, 1500);
+    } else {
+      console.log('⚠️ Some permissions denied');
+    }
+  }
+
+  // Skip permissions
+  function skipPermissions() {
+    console.log('⏭️ Skipping permissions...');
+    navigateToHome();
+  }
+
+  // Navigate to home
+  function navigateToHome() {
+    if (typeof Navigation !== 'undefined' && Navigation.navigate) {
+      Navigation.navigate('home');
+    } else {
+      window.location.href = 'home.html';
+    }
+  }
+
+  // Check existing permissions on load
+  (function checkExistingPermissions() {
+    // Check camera
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.permissions.query({ name: 'camera' })
+        .then(result => {
+          if (result.state === 'granted') {
+            updatePermissionStatus('camera', 'granted');
+          }
+        })
+        .catch(() => console.log('Camera permission check not supported'));
+    }
+
+    // Check microphone
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.permissions.query({ name: 'microphone' })
+        .then(result => {
+          if (result.state === 'granted') {
+            updatePermissionStatus('microphone', 'granted');
+          }
+        })
+        .catch(() => console.log('Microphone permission check not supported'));
+    }
+  })();
+</script>
