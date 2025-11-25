@@ -399,4 +399,49 @@ async function clearAllData() {
 
 // Load settings on page load
 loadSettings();
+
+// Theme Management
+const darkModeToggle = document.getElementById('darkModeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeName = document.getElementById('themeName');
+
+// Load saved theme
+async function loadTheme() {
+  try {
+    const settings = await Database.getSettings();
+    const isDark = settings?.darkMode !== false; // Default to dark
+    
+    darkModeToggle.checked = isDark;
+    applyTheme(isDark);
+  } catch (error) {
+    console.error('Error loading theme:', error);
+    applyTheme(true); // Default to dark
+  }
+}
+
+// Apply theme
+function applyTheme(isDark) {
+  const root = document.documentElement;
+  
+  if (isDark) {
+    root.setAttribute('data-theme', 'dark');
+    themeIcon.className = 'bi bi-moon-stars fs-4';
+    themeName.textContent = 'Dark Theme';
+  } else {
+    root.setAttribute('data-theme', 'light');
+    themeIcon.className = 'bi bi-sun fs-4';
+    themeName.textContent = 'Light Theme';
+  }
+  
+  // Save to database
+  Database.saveSetting('darkMode', isDark);
+}
+
+// Toggle theme
+darkModeToggle.addEventListener('change', (e) => {
+  applyTheme(e.target.checked);
+});
+
+// Load theme on settings page load
+loadTheme();
 </script>
