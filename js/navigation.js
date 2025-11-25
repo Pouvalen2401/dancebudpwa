@@ -3,7 +3,7 @@
  * Handles screen routing and transitions
  */
 const Navigation = {
-  currentScreen: 'splash',
+  currentScreen: 'splash.html',
 
   /**
    * Navigate to a specific screen
