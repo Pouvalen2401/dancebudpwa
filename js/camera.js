@@ -1,7 +1,6 @@
 /**
  * Camera Module
  * Handles camera feed and pose detection
- * Member 2's responsibility
  */
 
 const CameraModule = {

@@ -1,0 +1,406 @@
+<div class="practice-screen min-vh-100 d-flex flex-column" style="background: #000000;">
+  <!-- Video Feed Container -->
+  <div class="position-relative flex-grow-1">
+    <!-- Video Element -->
+    <video id="practiceVideo" autoplay playsinline class="w-100 h-100" style="object-fit: cover;"></video>
+    
+    <!-- Canvas Overlay for Skeleton -->
+    <canvas id="poseCanvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;"></canvas>
+    
+    <!-- Posture Feedback Badge (Top Left) -->
+    <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
+      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-cyan">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-person-standing text-cyan"></i>
+          <small class="text-muted">Posture</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="progress flex-grow-1" style="height: 8px; width: 100px;">
+            <div id="postureBar" class="progress-bar bg-gradient" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #06b6d4, #10b981);"></div>
+          </div>
+          <strong id="postureScore" class="text-cyan">0%</strong>
+        </div>
+        <small id="postureFeedback" class="text-success d-block mt-1">Stand straight</small>
+      </div>
+    </div>
+    
+    <!-- Timer (Top Right) -->
+    <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
+      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-purple text-center">
+        <i class="bi bi-clock text-purple mb-1"></i>
+        <h4 id="sessionTimer" class="mb-0 text-purple fw-bold" style="font-family: 'Courier New', monospace;">00:00</h4>
+      </div>
+    </div>
+    
+    <!-- BPM Detector (Bottom - Above Controls) -->
+    <div class="position-absolute bottom-0 start-0 end-0 mb-5 pb-5 px-3" style="z-index: 10;">
+      <div class="bg-dark bg-opacity-90 backdrop-blur rounded-3 p-3 border border-purple">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3 flex-grow-1">
+            <div id="bpmPulse" class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(168, 85, 247, 0.2);">
+              <i class="bi bi-music-note-beamed text-purple fs-5"></i>
+            </div>
+            <div class="flex-grow-1">
+              <small class="text-muted d-block">Beat Detection</small>
+              <h5 id="bpmDisplay" class="mb-0 text-purple fw-bold">-- BPM</h5>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-purple" onclick="tapSync()">
+            <i class="bi bi-hand-index-thumb me-1"></i>
+            Tap Sync
+          </button>
+        </div>
+        
+        <!-- Beat Visualizer -->
+        <div class="d-flex gap-1 mt-2" id="beatVisualizer">
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bottom Controls Panel -->
+  <div class="controls-panel bg-dark border-top border-secondary p-3">
+    <!-- Motion Stats Row -->
+    <div class="row g-2 mb-3">
+      <div class="col-4">
+        <div class="stat-mini bg-gradient-to-r from-cyan-900 to-transparent border border-cyan rounded-2 p-2 text-center">
+          <i class="bi bi-footprints text-cyan d-block mb-1"></i>
+          <h6 id="stepCount" class="mb-0 fw-bold text-cyan">0</h6>
+          <small class="text-muted" style="font-size: 10px;">Steps</small>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="stat-mini bg-gradient-to-r from-pink-900 to-transparent border border-pink rounded-2 p-2 text-center">
+          <i class="bi bi-arrow-repeat text-pink d-block mb-1"></i>
+          <h6 id="turnCount" class="mb-0 fw-bold text-pink">0</h6>
+          <small class="text-muted" style="font-size: 10px;">Turns</small>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="stat-mini bg-gradient-to-r from-purple-900 to-transparent border border-purple rounded-2 p-2 text-center">
+          <i class="bi bi-lightning text-purple d-block mb-1"></i>
+          <h6 id="energyLevel" class="mb-0 fw-bold text-purple">0</h6>
+          <small class="text-muted" style="font-size: 10px;">Energy</small>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div class="d-flex gap-2">
+      <button id="pauseBtn" class="btn btn-warning flex-grow-1 py-3" onclick="togglePause()">
+        <i class="bi bi-pause-fill me-2"></i>
+        <span id="pauseBtnText">Pause</span>
+      </button>
+      <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()">
+        <i class="bi bi-stop-fill me-2"></i>
+        End Session
+      </button>
+      <button class="btn btn-dark px-3 py-3" onclick="Navigation.navigate('home')">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.badge-card {
+  min-width: 120px;
+}
+
+#bpmPulse {
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.beat-bar {
+  transition: all 0.1s ease;
+}
+
+.beat-bar.active {
+  background: var(--neon-purple) !important;
+  height: 8px !important;
+}
+
+.btn-outline-purple {
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+}
+
+.btn-outline-purple:hover {
+  background: var(--neon-purple);
+  color: white;
+}
+</style>
+
+<script>
+let sessionActive = false;
+let sessionPaused = false;
+let sessionStartTime = null;
+let timerInterval = null;
+let tapTimes = [];
+
+// Session data
+const sessionData = {
+  steps: 0,
+  turns: 0,
+  energy: 0,
+  postureReadings: [],
+  bpmReadings: [],
+  duration: 0
+};
+
+// Initialize practice screen
+async function initPracticeScreen() {
+  console.log('🎬 Initializing practice screen...');
+  
+  try {
+    // Get video and canvas elements
+    const video = document.getElementById('practiceVideo');
+    const canvas = document.getElementById('poseCanvas');
+    
+    // Start camera
+    await CameraModule.startCamera(video, canvas);
+    console.log('✅ Camera started');
+    
+    // Start pose detection
+    await CameraModule.startPoseDetection((pose, score) => {
+      updatePosture(score);
+      sessionData.postureReadings.push(score);
+    });
+    console.log('✅ Pose detection started');
+    
+    // Start audio monitoring (Member 2 will implement)
+    try {
+      await AudioModule.startMonitoring((bpm) => {
+        updateBPM(bpm);
+        sessionData.bpmReadings.push(bpm);
+      });
+      console.log('✅ Audio monitoring started');
+    } catch (error) {
+      console.warn('⚠️ Audio monitoring not available yet');
+    }
+    
+    // Start motion tracking (Member 2 will implement)
+    try {
+      await MotionModule.startTracking((data) => {
+        updateMotionStats(data);
+      });
+      console.log('✅ Motion tracking started');
+    } catch (error) {
+      console.warn('⚠️ Motion tracking not available yet');
+    }
+    
+    // Start session timer
+    startSessionTimer();
+    sessionActive = true;
+    
+  } catch (error) {
+    console.error('❌ Failed to initialize practice screen:', error);
+    alert('Failed to start practice session. Please check camera permissions.');
+    Navigation.navigate('home');
+  }
+}
+
+// Session timer
+function startSessionTimer() {
+  sessionStartTime = Date.now();
+  
+  timerInterval = setInterval(() => {
+    if (!sessionPaused) {
+      const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+      sessionData.duration = elapsed;
+      
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('sessionTimer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+// Update posture display
+function updatePosture(score) {
+  const scoreElement = document.getElementById('postureScore');
+  const barElement = document.getElementById('postureBar');
+  const feedbackElement = document.getElementById('postureFeedback');
+  
+  scoreElement.textContent = Math.round(score) + '%';
+  barElement.style.width = score + '%';
+  
+  // Update feedback text
+  if (score >= 85) {
+    feedbackElement.textContent = 'Excellent! 🌟';
+    feedbackElement.className = 'text-success d-block mt-1';
+  } else if (score >= 70) {
+    feedbackElement.textContent = 'Good form 👍';
+    feedbackElement.className = 'text-success d-block mt-1';
+  } else if (score >= 50) {
+    feedbackElement.textContent = 'Keep improving';
+    feedbackElement.className = 'text-warning d-block mt-1';
+  } else {
+    feedbackElement.textContent = 'Straighten up';
+    feedbackElement.className = 'text-danger d-block mt-1';
+  }
+}
+
+// Update BPM display
+function updateBPM(bpm) {
+  document.getElementById('bpmDisplay').textContent = Math.round(bpm) + ' BPM';
+  
+  // Animate beat visualizer
+  const bars = document.querySelectorAll('.beat-bar');
+  const activeBar = Math.floor(Date.now() / (60000 / bpm)) % bars.length;
+  
+  bars.forEach((bar, i) => {
+    if (i === activeBar) {
+      bar.classList.add('active');
+      setTimeout(() => bar.classList.remove('active'), 100);
+    }
+  });
+}
+
+// Update motion stats
+function updateMotionStats(data) {
+  if (data.steps !== undefined) {
+    sessionData.steps = data.steps;
+    document.getElementById('stepCount').textContent = data.steps;
+  }
+  
+  if (data.turns !== undefined) {
+    sessionData.turns = data.turns;
+    document.getElementById('turnCount').textContent = data.turns;
+  }
+  
+  if (data.energy !== undefined) {
+    sessionData.energy = data.energy;
+    document.getElementById('energyLevel').textContent = Math.round(data.energy);
+  }
+}
+
+// Tap sync for manual BPM
+function tapSync() {
+  const now = Date.now();
+  tapTimes.push(now);
+  
+  // Keep only last 4 taps
+  if (tapTimes.length > 4) {
+    tapTimes.shift();
+  }
+  
+  // Calculate BPM from taps
+  if (tapTimes.length >= 2) {
+    const intervals = [];
+    for (let i = 1; i < tapTimes.length; i++) {
+      intervals.push(tapTimes[i] - tapTimes[i-1]);
+    }
+    
+    const avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+    const bpm = 60000 / avgInterval;
+    
+    updateBPM(bpm);
+  }
+}
+
+// Toggle pause
+function togglePause() {
+  sessionPaused = !sessionPaused;
+  
+  const btn = document.getElementById('pauseBtn');
+  const btnText = document.getElementById('pauseBtnText');
+  
+  if (sessionPaused) {
+    btn.className = 'btn btn-success flex-grow-1 py-3';
+    btnText.textContent = 'Resume';
+    btn.querySelector('i').className = 'bi bi-play-fill me-2';
+    
+    // Pause detection
+    CameraModule.stopPoseDetection();
+    
+  } else {
+    btn.className = 'btn btn-warning flex-grow-1 py-3';
+    btnText.textContent = 'Pause';
+    btn.querySelector('i').className = 'bi bi-pause-fill me-2';
+    
+    // Resume detection
+    CameraModule.startPoseDetection((pose, score) => {
+      updatePosture(score);
+      sessionData.postureReadings.push(score);
+    });
+  }
+}
+
+// End session
+async function endSession() {
+  if (!confirm('End this practice session?')) {
+    return;
+  }
+  
+  // Stop everything
+  clearInterval(timerInterval);
+  CameraModule.stopCamera();
+  CameraModule.stopPoseDetection();
+  
+  try {
+    if (AudioModule.stopMonitoring) {
+      AudioModule.stopMonitoring();
+    }
+    if (MotionModule.stopTracking) {
+      MotionModule.stopTracking();
+    }
+  } catch (error) {
+    console.warn('Error stopping sensors:', error);
+  }
+  
+  // Calculate summary
+  const avgPosture = sessionData.postureReadings.length > 0
+    ? sessionData.postureReadings.reduce((a, b) => a + b) / sessionData.postureReadings.length
+    : 0;
+  
+  const avgBPM = sessionData.bpmReadings.length > 0
+    ? sessionData.bpmReadings.reduce((a, b) => a + b) / sessionData.bpmReadings.length
+    : 0;
+  
+  // Save session to database
+  const session = {
+    date: new Date().toISOString(),
+    duration: formatDuration(sessionData.duration),
+    score: Math.round(avgPosture),
+    avgBPM: Math.round(avgBPM),
+    steps: sessionData.steps,
+    turns: sessionData.turns,
+    energy: sessionData.energy,
+    routineName: await Database.getSelectedRoutine() || 'Freestyle'
+  };
+  
+  await Database.saveSession(session);
+  
+  // Navigate to summary
+  Navigation.navigate('summary');
+}
+
+function formatDuration(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Initialize when screen loads
+initPracticeScreen();
+</script>
