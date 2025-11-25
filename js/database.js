@@ -88,7 +88,53 @@ const Database = {
   /**
    * Get all sessions
    */
-  async getAllSessions() {
+    async getAllSessions() {{
     if (!this.db) await this.init();
   }    
-}
+},
+
+/**
+ * Get selected routine
+ */
+  async getSelectedRoutine() {
+  if (!this.db) await this.init();
+  
+  try {
+    const result = await this.getSetting('selectedRoutine');
+    return result || 'Freestyle';
+  } catch (error) {
+    return 'Freestyle';
+  }
+},
+
+/**
+ * Set selected routine
+ */
+async setSelectedRoutine(routineName) {
+  if (!this.db) await this.init();
+  
+  return this.saveSetting('selectedRoutine', routineName);
+},
+
+/**
+ * Get permission status
+ */
+async getPermissionStatus() {
+  if (!this.db) await this.init();
+  
+  try {
+    const result = await this.getSetting('permissions');
+    return result || null;
+  } catch (error) {
+    return null;
+  }
+},
+
+/**
+ * Save permission status
+ */
+async savePermissionStatus(permissions) {
+  if (!this.db) await this.init();
+  
+  return this.saveSetting('permissions', permissions);
+}};
