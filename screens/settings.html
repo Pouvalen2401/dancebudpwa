@@ -31,6 +31,40 @@
       </div>
     </div>
 
+    <!-- Theme Settings (NEW!) -->
+<div class="card border-cyan mb-4">
+  <div class="card-body p-4">
+    <h6 class="fw-bold mb-3 text-cyan">
+      <i class="bi bi-palette me-2"></i>
+      Appearance
+    </h6>
+    
+    <!-- Theme Toggle -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <div class="fw-semibold">Dark Mode</div>
+        <small class="text-muted">Switch between light and dark theme</small>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="darkModeToggle" checked>
+      </div>
+    </div>
+    
+    <!-- Theme Preview -->
+    <div class="theme-preview mt-3 p-3 rounded border" style="border-color: var(--border-secondary);">
+      <div class="d-flex align-items-center gap-3">
+        <div class="theme-sample bg-dark rounded" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+          <i class="bi bi-moon-stars fs-4" id="themeIcon"></i>
+        </div>
+        <div>
+          <div class="fw-bold" id="themeName">Dark Theme</div>
+          <small class="text-muted">Current theme</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
     <!-- Sensor Configuration -->
     <div class="card border-purple mb-4">
       <div class="card-body p-4">
