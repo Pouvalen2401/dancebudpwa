@@ -1,4 +1,4 @@
-git /**
+/**
  * Audio Module
  * Handles microphone and BPM detection
  * Member 2's responsibility

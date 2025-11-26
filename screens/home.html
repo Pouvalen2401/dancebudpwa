@@ -524,4 +524,85 @@ function updateHeaderThemeIcon(theme) {
 
 // Set initial icon
 updateHeaderThemeIcon(ThemeSystem.getTheme());
+
+// Load home screen data with loading state
+async function loadHomeData() {
+  // Show loading skeletons
+  showLoadingState();
+  
+  try {
+    // Initialize database
+    await Database.init();
+    
+    // Get user name
+    const userName = await Database.getUserName();
+    document.getElementById('userName').textContent = userName || 'Dancer';
+    
+    // Get statistics with error handling
+    let stats;
+    try {
+      stats = await Database.getStatistics();
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      stats = {
+        totalSessions: 0,
+        avgScore: 0,
+        totalTime: 0
+      };
+    }
+    
+    // Update UI
+    document.getElementById('totalSessions').textContent = stats.totalSessions || 0;
+    document.getElementById('avgScore').textContent = Math.round(stats.avgScore || 0) + '%';
+    document.getElementById('totalTime').textContent = formatTime(stats.totalTime || 0);
+    
+    // Load recent activity
+    await loadRecentActivity();
+    
+    // Update notification badge
+    await updateNotificationBadge();
+    
+    // Hide loading state
+    hideLoadingState();
+    
+  } catch (error) {
+    console.error('Error loading home data:', error);
+    showErrorState('Failed to load data. Please refresh.');
+  }
+}
+
+function showLoadingState() {
+  // Show skeleton loaders for stats
+  document.querySelectorAll('.stat-card').forEach(card => {
+    card.classList.add('skeleton');
+  });
+}
+
+function hideLoadingState() {
+  document.querySelectorAll('.skeleton').forEach(el => {
+    el.classList.remove('skeleton');
+  });
+}
+
+function showErrorState(message) {
+  const container = document.querySelector('.container');
+  container.innerHTML = `
+    <div class="text-center py-5">
+      <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3 d-block"></i>
+      <h5 class="text-danger mb-3">${message}</h5>
+      <button class="btn btn-primary" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise me-2"></i>
+        Retry
+      </button>
+    </div>
+  `;
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+  loadHomeData();
+}, 30000);
+
+// Load on page show
+loadHomeData();
 </script>
