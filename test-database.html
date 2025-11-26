@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Test - DanceBud</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    button {
+      background: #06b6d4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+      font-family: inherit;
+    }
+    button:hover { background: #0891b2; }
+    .output {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .success { color: #10b981; }
+    .error { color: #ef4444; }
+    .info { color: #06b6d4; }
+    h2 { color: #06b6d4; border-bottom: 2px solid #06b6d4; padding-bottom: 10px; }
+    h3 { color: #a855f7; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💾 Database Test Suite</h1>
+    
+    <h2>1. Database Info</h2>
+    <button onclick="testDatabaseInfo()">Get Database Info</button>
+    <button onclick="testGetStatistics()">Get Statistics</button>
+    <div id="infoOutput" class="output"></div>
+    
+    <h2>2. Session Operations</h2>
+    <button onclick="testSaveSession()">Save Test Session</button>
+    <button onclick="testGetAllSessions()">Get All Sessions</button>
+    <button onclick="testDeleteSession()">Delete Last Session</button>
+    <button onclick="testClearSessions()">Clear All Sessions</button>
+    <div id="sessionOutput" class="output"></div>
+    
+    <h2>3. Settings Operations</h2>
+    <button onclick="testSaveSettings()">Save Test Settings</button>
+    <button onclick="testGetSettings()">Get All Settings</button>
+    <button onclick="testDeleteSetting()">Delete Setting</button>
+    <div id="settingsOutput" class="output"></div>
+    
+    <h2>4. Export/Import</h2>
+    <button onclick="testExportData()">Export Data</button>
+    <button onclick="testImportData()">Import Test Data</button>
+    <div id="exportOutput" class="output"></div>
+    
+    <h2>5. Clear All</h2>
+    <button onclick="testClearAllData()" style="background: #ef4444;">⚠️ Clear All Data</button>
+    <div id="clearOutput" class="output"></div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/database.js"></script>
+  
+  <script>
+    function log(elementId, message, type = 'info') {
+      const output = document.getElementById(elementId);
+      const timestamp = new Date().toLocaleTimeString();
+      const className = type;
+      output.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    // Database Info Tests
+    async function testDatabaseInfo() {
+      try {
+        const info = await Database.getDatabaseInfo();
+        log('infoOutput', 'Database Info:', 'success');
+        log('infoOutput', JSON.stringify(info, null, 2), 'info');
+      } catch (error) {
+        log('infoOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testGetStatistics() {
+      try {
+        const stats = await Database.getStatistics();
+        log('infoOutput', 'Statistics:', 'success');
+        log('infoOutput', JSON.stringify(stats, null, 2), 'info');
+      } catch (error) {
+        log('infoOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Session Tests
+    async function testSaveSession() {
+      try {
+        const session = {
+          routineName: 'Test Dance ' + Date.now(),
+          duration: '5:30',
+          durationSeconds: 330,
+          score: Math.floor(Math.random() * 40) + 60,
+          avgBPM: Math.floor(Math.random() * 40) + 100,
+          steps: Math.floor(Math.random() * 200) + 100,
+          turns: Math.floor(Math.random() * 20) + 5,
+          energy: Math.floor(Math.random() * 30) + 70
+        };
+        
+        const saved = await Database.saveSession(session);
+        log('sessionOutput', 'Session saved with ID: ' + saved.id, 'success');
+        log('sessionOutput', JSON.stringify(saved, null, 2), 'info');
+      } catch (error) {
+        log('sessionOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testGetAllSessions() {
+      try {
+        const sessions = await Database.getAllSessions();
+        log('sessionOutput', `Found ${sessions.length} sessions:`, 'success');
+        sessions.forEach(s => {
+          log('sessionOutput', `ID: ${s.id} | ${s.routineName} | Score: ${s.score}% | ${s.duration}`, 'info');
+        });
+      } catch (error) {
+        log('sessionOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testDeleteSession() {
+      try {
+        const sessions = await Database.getAllSessions();
+        if (sessions.length === 0) {
+          log('sessionOutput', 'No sessions to delete', 'error');
+          return;
+        }
+        
+        const lastSession = sessions[0];
+        await Database.deleteSession(lastSession.id);
+        log('sessionOutput', 'Deleted session ID: ' + lastSession.id, 'success');
+      } catch (error) {
+        log('sessionOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testClearSessions() {
+      if (!confirm('Clear all sessions?')) return;
+      
+      try {
+        await Database.clearAllSessions();
+        log('sessionOutput', 'All sessions cleared', 'success');
+      } catch (error) {
+        log('sessionOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Settings Tests
+    async function testSaveSettings() {
+      try {
+        await Database.saveSettings({
+          userName: 'Test User',
+          darkMode: true,
+          cameraQuality: 'high',
+          micSensitivity: 75,
+          testSetting: 'Test Value ' + Date.now()
+        });
+        log('settingsOutput', 'Settings saved', 'success');
+      } catch (error) {
+        log('settingsOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testGetSettings() {
+      try {
+        const settings = await Database.getSettings();
+        log('settingsOutput', 'Settings:', 'success');
+        log('settingsOutput', JSON.stringify(settings, null, 2), 'info');
+      } catch (error) {
+        log('settingsOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testDeleteSetting() {
+      try {
+        await Database.deleteSetting('testSetting');
+        log('settingsOutput', 'Deleted testSetting', 'success');
+      } catch (error) {
+        log('settingsOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Export/Import Tests
+    async function testExportData() {
+      try {
+        const data = await Database.exportAllData();
+        log('exportOutput', 'Data exported:', 'success');
+        log('exportOutput', JSON.stringify(data, null, 2), 'info');
+        
+        // Download as JSON
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dancebudpwa-export-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        log('exportOutput', 'Download started', 'success');
+      } catch (error) {
+        log('exportOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function testImportData() {
+      const testData = {
+        exportDate: new Date().toISOString(),
+        appVersion: '1.0.0',
+        sessions: [
+          {
+            routineName: 'Imported Session 1',
+            duration: '10:00',
+            durationSeconds: 600,
+            score: 85,
+            avgBPM: 120,
+            steps: 300,
+            turns: 15,
+            date: new Date().toISOString()
+          },
+          {
+            routineName: 'Imported Session 2',
+            duration: '8:30',
+            durationSeconds: 510,
+            score: 78,
+            avgBPM: 130,
+            steps: 250,
+            turns: 12,
+            date: new Date(Date.now() - 86400000).toISOString()
+          }
+        ],
+        settings: {
+          userName: 'Imported User',
+          darkMode: false
+        }
+      };
+      
+      if (!confirm('This will replace all current data. Continue?')) return;
+      
+      try {
+        await Database.importData(testData);
+        log('exportOutput', 'Data imported successfully', 'success');
+        log('exportOutput', `Imported ${testData.sessions.length} sessions`, 'info');
+      } catch (error) {
+        log('exportOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Clear All
+    async function testClearAllData() {
+      if (!confirm('⚠️ This will DELETE ALL data! Are you sure?')) return;
+      
+      try {
+        await Database.clearAllData();
+        log('clearOutput', 'All data cleared', 'success');
+      } catch (error) {
+        log('clearOutput', 'Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Auto-load info on page load
+    window.addEventListener('load', () => {
+      testDatabaseInfo();
+    });
+  </script>
+</body>
+</html>
