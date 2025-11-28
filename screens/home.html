@@ -35,6 +35,13 @@
     display: grid;
     place-items: center;
   }
+
+  /* Icons container - aligned horizontally on the right */
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
   
   .settings-btn {
     background: rgba(59, 130, 246, 0.1);
@@ -259,6 +266,21 @@
     margin: 0;
   }
   
+  /* Notification badge */
+  .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+  
   /* Responsive Design with CSS Grid */
   @media (max-width: 576px) {
     .app-header {
@@ -298,6 +320,15 @@
     .play-icon-wrapper i {
       font-size: 24px;
     }
+
+    .settings-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .header-actions {
+      gap: 6px;
+    }
   }
   
   @media (max-width: 400px) {
@@ -320,6 +351,7 @@
 </style>
 
 <header class="app-header">
+  <!-- Left side: Logo and title -->
   <div class="header-left">
     <div class="logo-small">
       <i class="bi bi-lightning-charge-fill" style="color: white; font-size: 20px;"></i>
@@ -329,28 +361,25 @@
       <p class="mb-0" style="font-size: 14px; color: #06b6d4;">Your Pocket-size Dance Coach</p>
     </div>
   </div>
-  <button class="settings-btn" onclick="navigateToSettings()" aria-label="Settings">
-    <i class="bi bi-gear" style="color: #3b82f6; font-size: 20px;"></i>
-  </button>
-
-  <!-- Notification & Settings Icons -->
-<div class="col-auto">
-  <!-- Theme Toggle Button (NEW!) -->
-  <button class="btn btn-dark me-2" onclick="quickToggleTheme()" title="Toggle theme">
-    <i class="bi bi-moon-stars fs-5 text-warning" id="headerThemeIcon"></i>
-  </button>
   
-  <button class="btn btn-dark position-relative me-2" id="notificationBtn" onclick="showNotifications()">
-    <i class="bi bi-bell fs-5 text-cyan"></i>
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
-      0
-    </span>
-  </button>
-  
-  <button class="btn btn-dark" onclick="Navigation.navigate('settings')">
-    <i class="bi bi-gear fs-5 text-purple"></i>
-  </button>
-</div>
+  <!-- Right side: Action buttons (horizontal layout) -->
+  <div class="header-actions">
+    <!-- Theme Toggle -->
+    <button class="settings-btn" onclick="quickToggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+      <i class="bi bi-moon-stars" id="headerThemeIcon" style="color: #fbbf24; font-size: 20px;"></i>
+    </button>
+    
+    <!-- Notifications -->
+    <button class="settings-btn position-relative" id="notificationBtn" onclick="showNotifications()" aria-label="Notifications">
+      <i class="bi bi-bell" style="color: #06b6d4; font-size: 20px;"></i>
+      <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+    </button>
+    
+    <!-- Settings -->
+    <button class="settings-btn" onclick="navigateToSettings()" aria-label="Settings">
+      <i class="bi bi-gear" style="color: #8b5cf6; font-size: 20px;"></i>
+    </button>
+  </div>
 </header>
 
 <main style="padding: 20px; max-width: 600px; margin: 0 auto;">
@@ -432,6 +461,7 @@
   // Load home stats on screen load
   (function() {
     loadHomeStats();
+    updateHeaderThemeIcon(ThemeSystem?.getTheme() || 'dark');
   })();
 
   function loadHomeStats() {
@@ -455,6 +485,7 @@
     }
     
     showRandomTip();
+    updateNotificationBadge();
   }
 
   function showRandomTip() {
@@ -508,101 +539,52 @@
   }
 
   // Quick theme toggle
-async function quickToggleTheme() {
-  const newTheme = await ThemeSystem.toggle();
-  updateHeaderThemeIcon(newTheme);
-}
-
-function updateHeaderThemeIcon(theme) {
-  const icon = document.getElementById('headerThemeIcon');
-  if (icon) {
-    icon.className = theme === 'dark' 
-      ? 'bi bi-moon-stars fs-5 text-warning' 
-      : 'bi bi-sun fs-5 text-warning';
-  }
-}
-
-// Set initial icon
-updateHeaderThemeIcon(ThemeSystem.getTheme());
-
-// Load home screen data with loading state
-async function loadHomeData() {
-  // Show loading skeletons
-  showLoadingState();
-  
-  try {
-    // Initialize database
-    await Database.init();
-    
-    // Get user name
-    const userName = await Database.getUserName();
-    document.getElementById('userName').textContent = userName || 'Dancer';
-    
-    // Get statistics with error handling
-    let stats;
-    try {
-      stats = await Database.getStatistics();
-    } catch (error) {
-      console.error('Error loading stats:', error);
-      stats = {
-        totalSessions: 0,
-        avgScore: 0,
-        totalTime: 0
-      };
+  async function quickToggleTheme() {
+    if (typeof ThemeSystem !== 'undefined' && ThemeSystem.toggle) {
+      const newTheme = await ThemeSystem.toggle();
+      updateHeaderThemeIcon(newTheme);
+    } else {
+      console.warn('ThemeSystem not available');
     }
-    
-    // Update UI
-    document.getElementById('totalSessions').textContent = stats.totalSessions || 0;
-    document.getElementById('avgScore').textContent = Math.round(stats.avgScore || 0) + '%';
-    document.getElementById('totalTime').textContent = formatTime(stats.totalTime || 0);
-    
-    // Load recent activity
-    await loadRecentActivity();
-    
-    // Update notification badge
-    await updateNotificationBadge();
-    
-    // Hide loading state
-    hideLoadingState();
-    
-  } catch (error) {
-    console.error('Error loading home data:', error);
-    showErrorState('Failed to load data. Please refresh.');
   }
-}
 
-function showLoadingState() {
-  // Show skeleton loaders for stats
-  document.querySelectorAll('.stat-card').forEach(card => {
-    card.classList.add('skeleton');
-  });
-}
+  function updateHeaderThemeIcon(theme) {
+    const icon = document.getElementById('headerThemeIcon');
+    if (icon) {
+      icon.className = theme === 'dark' 
+        ? 'bi bi-moon-stars' 
+        : 'bi bi-sun';
+      icon.style.color = '#fbbf24';
+      icon.style.fontSize = '20px';
+    }
+  }
 
-function hideLoadingState() {
-  document.querySelectorAll('.skeleton').forEach(el => {
-    el.classList.remove('skeleton');
-  });
-}
+  // Show notifications (placeholder)
+  function showNotifications() {
+    if (typeof Navigation !== 'undefined' && Navigation.navigate) {
+      Navigation.navigate('notifications');
+    } else {
+      alert('Notifications feature coming soon!');
+    }
+  }
 
-function showErrorState(message) {
-  const container = document.querySelector('.container');
-  container.innerHTML = `
-    <div class="text-center py-5">
-      <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3 d-block"></i>
-      <h5 class="text-danger mb-3">${message}</h5>
-      <button class="btn btn-primary" onclick="location.reload()">
-        <i class="bi bi-arrow-clockwise me-2"></i>
-        Retry
-      </button>
-    </div>
-  `;
-}
+  // Update notification badge
+  function updateNotificationBadge() {
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+      // Check for unread notifications (placeholder logic)
+      const unreadCount = 0; // Replace with actual notification count
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
 
-// Auto-refresh every 30 seconds
-setInterval(() => {
-  loadHomeData();
-}, 30000);
-
-// Load on page show
-loadHomeData();
+  // Auto-refresh stats every 30 seconds
+  setInterval(() => {
+    loadHomeStats();
+  }, 30000);
 </script>
