@@ -3,7 +3,7 @@
  * Handles screen routing and transitions
  */
 const Navigation = {
-  currentScreen: 'splash.html',
+  currentScreen: 'splash',
 
   /**
    * Navigate to a specific screen
@@ -178,6 +178,8 @@ const Navigation = {
     `;
   },
 
+ 
+
   /**
    * Navigate back to previous screen
    */
@@ -193,7 +195,11 @@ window.Navigation = Navigation;
 console.log('✅ Navigation module loaded');
 console.log('📂 Current URL:', window.location.href);
 
+
+
 // Export for potential module usage
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Navigation;
 }
+
+    
