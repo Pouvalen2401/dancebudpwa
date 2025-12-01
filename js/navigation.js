@@ -31,16 +31,23 @@ const Navigation = {
       appContainer.style.opacity = '0';
       appContainer.style.transition = 'opacity 0.3s ease';
       
-      setTimeout(() => {
+      setTimeout(async () => {
         appContainer.innerHTML = screenContent;
         appContainer.style.opacity = '1';
-        
+
+        // Execute any <script> tags that were part of the loaded HTML
+        try {
+          await this._executeInlineScripts(appContainer);
+        } catch (err) {
+          console.warn('⚠️ Error executing inline scripts:', err);
+        }
+
         // Initialize screen-specific functionality
         this.initializeScreen(screenName);
-        
+
         // Update current screen
         this.currentScreen = screenName;
-        
+
         console.log('✅ Navigation complete!');
       }, 300);
       
@@ -188,6 +195,45 @@ const Navigation = {
     // You can implement history tracking here
     this.navigate('home');
   }
+};
+
+/**
+ * Execute scripts that were added via innerHTML (they don't run automatically)
+ * Copies each <script> into a new element so the browser executes it.
+ * Supports both inline and external scripts and waits for external scripts to load.
+ */
+Navigation._executeInlineScripts = function(container) {
+  const scripts = Array.from(container.querySelectorAll('script'));
+
+  const promises = scripts.map((oldScript) => {
+    return new Promise((resolve, reject) => {
+      const newScript = document.createElement('script');
+
+      // Copy attributes
+      for (let i = 0; i < oldScript.attributes.length; i++) {
+        const attr = oldScript.attributes[i];
+        newScript.setAttribute(attr.name, attr.value);
+      }
+
+      if (oldScript.src) {
+        // External script: wait for load/error
+        newScript.src = oldScript.src;
+        newScript.onload = () => resolve();
+        newScript.onerror = (e) => reject(e || new Error('Script load error'));
+        document.head.appendChild(newScript);
+      } else {
+        // Inline script: copy text and execute immediately
+        newScript.text = oldScript.textContent;
+        document.head.appendChild(newScript);
+        resolve();
+      }
+
+      // Remove the old script node so it doesn't remain duplicated in the DOM
+      oldScript.parentNode && oldScript.parentNode.removeChild(oldScript);
+    });
+  });
+
+  return Promise.all(promises);
 };
 
 // Make Navigation globally available
