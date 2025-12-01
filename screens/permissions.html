@@ -411,6 +411,15 @@
     } else {
       card.classList.remove('granted');
     }
+    
+    // Persist permission state for other screens to read
+    try {
+      if (window.Database && Database.savePermissionStatus) {
+        Database.savePermissionStatus(permissionState).catch(() => {});
+      }
+    } catch (e) {
+      // ignore
+    }
   }
 
   // Check if all permissions granted
@@ -420,8 +429,15 @@
     if (allGranted) {
       console.log('🎉 All permissions granted!');
       setTimeout(() => {
-        navigateToHome();
-      }, 1500);
+        // If another screen requested permissions (e.g. practice), navigate there
+        const pending = sessionStorage.getItem('pendingNavigation');
+        if (pending && typeof Navigation !== 'undefined' && Navigation.navigate) {
+          sessionStorage.removeItem('pendingNavigation');
+          Navigation.navigate(pending);
+        } else {
+          navigateToHome();
+        }
+      }, 700);
     } else {
       console.log('⚠️ Some permissions denied');
     }

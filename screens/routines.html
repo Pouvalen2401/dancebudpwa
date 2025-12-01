@@ -168,6 +168,8 @@
       await Database.setSelectedRoutine(routineType);
       
       // Navigate to permissions (if not already granted) or practice
+      // remember we want to go to practice after granting permissions
+      sessionStorage.setItem('pendingNavigation', 'practice');
       await checkPermissionsAndNavigate();
     } catch (error) {
       console.error('Error selecting routine:', error);

@@ -113,8 +113,31 @@ const Navigation = {
       case 'practice':
         console.log('💃 Practice screen ready');
         // Initialize camera, audio, motion sensors
-        if (typeof CameraModule !== 'undefined' && CameraModule.init) {
-          // CameraModule.init();
+        // Ensure the practice initialization function runs every time we navigate here.
+        if (typeof window.initPracticeScreen === 'function') {
+          try {
+            window.initPracticeScreen();
+          } catch (e) {
+            console.warn('Error running initPracticeScreen():', e);
+          }
+        } else {
+          // Fallback: try to start camera and detector directly if elements exist
+          try {
+            const video = document.getElementById('practiceVideo');
+            const canvas = document.getElementById('poseCanvas');
+            if (video && canvas && typeof CameraModule !== 'undefined') {
+              CameraModule.startCamera(video, canvas).then(() => {
+                if (CameraModule.startPoseDetection) {
+                  CameraModule.startPoseDetection((pose, score) => {
+                    if (typeof updatePosture === 'function') updatePosture(score);
+                    if (typeof sessionData !== 'undefined') sessionData.postureReadings && sessionData.postureReadings.push(score);
+                  }).catch(err => console.warn('startPoseDetection failed:', err));
+                }
+              }).catch(err => console.warn('startCamera failed:', err));
+            }
+          } catch (e) {
+            console.warn('Practice fallback init failed:', e);
+          }
         }
         break;
         
@@ -153,23 +176,33 @@ const Navigation = {
       return;
     }
     
+    // Sanitize error message to prevent XSS
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    const safeMessage = error && error.message ? escapeHTML(error.message) : '';
     appContainer.innerHTML = `
       <div class="min-vh-100 d-flex align-items-center justify-content-center p-4" style="background: #000;">
         <div class="text-center" style="max-width: 600px;">
           <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
           <h2 class="mt-4 mb-3 text-white">Screen Not Found</h2>
-          <p class="text-muted mb-2">Could not load: <code>screens/${screenName}.html</code></p>
+          <p class="text-muted mb-2">Could not load: <code>screens/${escapeHTML(screenName)}.html</code></p>
           
           <div class="alert alert-danger text-start mt-3">
             <strong>Error Details:</strong><br>
-            ${error.message}
+            ${safeMessage}
           </div>
           
           <div class="bg-dark p-3 rounded text-start mt-3 small text-muted">
             <strong>🔍 Debug Info:</strong><br>
-            <strong>Current URL:</strong> ${window.location.href}<br>
-            <strong>Looking for:</strong> ${window.location.origin}${window.location.pathname.replace('index.html', '')}screens/${screenName}.html<br>
-            <strong>Protocol:</strong> ${window.location.protocol}<br>
+            <strong>Current URL:</strong> ${escapeHTML(window.location.href)}<br>
+            <strong>Looking for:</strong> ${escapeHTML(window.location.origin + window.location.pathname.replace('index.html', ''))}screens/${escapeHTML(screenName)}.html<br>
+            <strong>Protocol:</strong> ${escapeHTML(window.location.protocol)}<br>
             <strong>Tip:</strong> Make sure you're using Live Server (http://) not file://
           </div>
           
@@ -204,35 +237,43 @@ const Navigation = {
  */
 Navigation._executeInlineScripts = function(container) {
   const scripts = Array.from(container.querySelectorAll('script'));
-
   const promises = scripts.map((oldScript) => {
     return new Promise((resolve, reject) => {
       const newScript = document.createElement('script');
-
       // Copy attributes
       for (let i = 0; i < oldScript.attributes.length; i++) {
         const attr = oldScript.attributes[i];
         newScript.setAttribute(attr.name, attr.value);
       }
-
-      if (oldScript.src) {
-        // External script: wait for load/error
-        newScript.src = oldScript.src;
-        newScript.onload = () => resolve();
-        newScript.onerror = (e) => reject(e || new Error('Script load error'));
-        document.head.appendChild(newScript);
+      // Scripts inline : injecter systématiquement sauf si déjà présent dans le head (évite les doublons critiques)
+      if (!oldScript.src) {
+        if (!Array.from(document.head.querySelectorAll('script')).some(s => s.text === oldScript.textContent)) {
+          newScript.text = oldScript.textContent;
+          document.head.appendChild(newScript);
+        }
+        resolve();
+      } else if (oldScript.src) {
+        // External script: éviter d'injecter deux fois le même src
+        if (!document.querySelector(`script[src='${oldScript.src}']`)) {
+          newScript.src = oldScript.src;
+          newScript.onload = () => resolve();
+          newScript.onerror = (e) => reject(e || new Error('Script load error'));
+          document.head.appendChild(newScript);
+        } else {
+          resolve();
+        }
       } else {
-        // Inline script: copy text and execute immediately
-        newScript.text = oldScript.textContent;
-        document.head.appendChild(newScript);
+        // Inline script: éviter d'injecter deux fois le même contenu
+        if (!Array.from(document.head.querySelectorAll('script')).some(s => s.text === oldScript.textContent)) {
+          newScript.text = oldScript.textContent;
+          document.head.appendChild(newScript);
+        }
         resolve();
       }
-
       // Remove the old script node so it doesn't remain duplicated in the DOM
       oldScript.parentNode && oldScript.parentNode.removeChild(oldScript);
     });
   });
-
   return Promise.all(promises);
 };
 

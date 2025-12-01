@@ -16,14 +16,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Start with splash screen
   Navigation.navigate('splash');
   
-  // Register service worker for PWA
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('✅ Service Worker registered', reg))
-      .catch(err => console.log('❌ Service Worker registration failed', err));
-  }
+  // Service worker registration is handled in index.html
 });
 
-// Log app version
-console.log('%c DanceBud v1.0.0 ', 'background: linear-gradient(135deg, #06b6d4, #a855f7); color: white; font-size: 16px; padding: 10px;');
-console.log('Built with ❤️ by Team DanceBud');
+// Log app version (désactivé en production)
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  console.log('%c DanceBud v1.0.0 ', 'background: linear-gradient(135deg, #06b6d4, #a855f7); color: white; font-size: 16px; padding: 10px;');
+  console.log('Built with ❤️ by Team DanceBud');
+}

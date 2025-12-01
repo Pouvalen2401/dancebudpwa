@@ -1,0 +1,185 @@
+<!-- Notifications Screen -->
+<style>
+  .notifications-screen {
+    background: #0a0a0f;
+    color: #ffffff;
+    padding-bottom: 80px;
+  }
+  
+  .notifications-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 20px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .notifications-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .back-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #06b6d4;
+  }
+  
+  .back-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+  
+  .notifications-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .notification-item {
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.6), rgba(20, 20, 35, 0.6));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .notification-item:hover {
+    background: linear-gradient(135deg, rgba(40, 40, 60, 0.6), rgba(30, 30, 45, 0.6));
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+  
+  .notification-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+  }
+  
+  .notification-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+  
+  .notification-content p {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+  }
+  
+  .notification-time {
+    font-size: 12px;
+    color: #6b7280;
+    text-align: right;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  
+  .empty-state i {
+    font-size: 64px;
+    color: #6b7280;
+    margin-bottom: 16px;
+  }
+  
+  .empty-state h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin: 0;
+  }
+  
+  .empty-state p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 8px 0 0 0;
+  }
+</style>
+
+<div class="notifications-screen min-vh-100">
+  <!-- Header -->
+  <div class="notifications-header">
+    <button class="back-btn" onclick="Navigation.navigate('home')" title="Go back">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <h1>Notifications</h1>
+    <div style="width: 40px;"></div>
+  </div>
+
+  <!-- Notifications Container -->
+  <div class="notifications-container">
+    <!-- Empty State (placeholder) -->
+    <div class="empty-state" id="emptyState">
+      <i class="bi bi-bell-slash"></i>
+      <h2>No notifications yet</h2>
+      <p>You're all caught up! Check back later for updates.</p>
+    </div>
+
+    <!-- Notifications List (populated dynamically) -->
+    <div id="notificationsList"></div>
+  </div>
+</div>
+
+<script>
+  // Load notifications on screen load
+  (function() {
+    loadNotifications();
+  })();
+
+  async function loadNotifications() {
+    try {
+      // Placeholder: notifications list (can be populated from database later)
+      const notifications = [];
+      
+      const notificationsList = document.getElementById('notificationsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (notifications.length === 0) {
+        notificationsList.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+        notificationsList.innerHTML = notifications.map(notif => `
+          <div class="notification-item">
+            <div class="notification-icon">
+              <i class="bi ${notif.icon || 'bi-bell'}"></i>
+            </div>
+            <div class="notification-content">
+              <h3>${notif.title || 'Notification'}</h3>
+              <p>${notif.message || ''}</p>
+            </div>
+            <div class="notification-time">
+              ${notif.time || 'Just now'}
+            </div>
+          </div>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  }
+</script>

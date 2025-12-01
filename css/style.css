@@ -1,3 +1,22 @@
+/* Utilitaires manquants pour practice.html */
+.border-cyan {
+  border-color: var(--neon-cyan) !important;
+}
+.text-cyan {
+  color: var(--neon-cyan) !important;
+}
+.text-purple {
+  color: var(--neon-purple) !important;
+}
+.btn-outline-purple {
+  border-color: var(--neon-purple) !important;
+  color: var(--neon-purple) !important;
+  background: transparent !important;
+}
+.btn-outline-purple:hover {
+  background: var(--neon-purple) !important;
+  color: #fff !important;
+}
 /* ----------------------------------------------------
    DanceBud Theme System - Dark & Light Mode
 ---------------------------------------------------- */
@@ -177,27 +196,12 @@ body {
    ========================================== */
 
 /* ===== COLOR VARIABLES ===== */
+/* Fusionné avec le bloc :root du début du fichier pour éviter les doublons. Ajoutez ici uniquement les variables manquantes : */
 :root {
-  /* Neon Colors */
-  --neon-cyan: #06b6d4;
-  --neon-purple: #a855f7;
-  --neon-pink: #ec4899;
   --neon-blue: #3b82f6;
   --neon-green: #10b981;
   --neon-yellow: #fbbf24;
-  
-  /* Dark Theme */
-  --dark-bg: #000000;
-  --dark-card: #1a1a1a;
-  --dark-gray: #2a2a2a;
   --dark-lighter: #3a3a3a;
-  
-  /* Text Colors */
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #6b7280;
-  
-  /* Bootstrap Overrides */
   --bs-primary: #06b6d4;
   --bs-secondary: #a855f7;
   --bs-success: #10b981;
@@ -207,20 +211,14 @@ body {
   --bs-dark: #000000;
   --bs-body-bg: #000000;
   --bs-body-color: #ffffff;
-  
-  /* Shadows */
   --shadow-sm: 0 2px 8px rgba(6, 182, 212, 0.1);
   --shadow-md: 0 4px 20px rgba(6, 182, 212, 0.2);
   --shadow-lg: 0 8px 30px rgba(6, 182, 212, 0.3);
   --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
-  
-  /* Borders */
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
   --border-radius-xl: 20px;
-  
-  /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;

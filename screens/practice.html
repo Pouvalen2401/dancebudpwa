@@ -171,6 +171,22 @@ async function initPracticeScreen() {
   console.log('🎬 Initializing practice screen...');
   
   try {
+    // Reset session state so "Practice Again" starts fresh
+    try {
+      sessionPaused = false;
+      sessionActive = false;
+      tapTimes = [];
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      sessionData.steps = 0;
+      sessionData.turns = 0;
+      sessionData.energy = 0;
+      sessionData.postureReadings = [];
+      sessionData.bpmReadings = [];
+      sessionData.duration = 0;
+    } catch (e) {
+      console.warn('Could not fully reset session state:', e);
+    }
+
     // Get video and canvas elements
     const video = document.getElementById('practiceVideo');
     const canvas = document.getElementById('poseCanvas');
@@ -352,47 +368,64 @@ async function endSession() {
     return;
   }
   
-  // Stop everything
-  clearInterval(timerInterval);
-  CameraModule.stopCamera();
-  CameraModule.stopPoseDetection();
-  
   try {
-    if (AudioModule.stopMonitoring) {
-      AudioModule.stopMonitoring();
+    // Stop everything
+    clearInterval(timerInterval);
+    CameraModule.stopCamera();
+    CameraModule.stopPoseDetection();
+    
+    try {
+      if (AudioModule.stopMonitoring) {
+        AudioModule.stopMonitoring();
+      }
+      if (MotionModule.stopTracking) {
+        MotionModule.stopTracking();
+      }
+    } catch (error) {
+      console.warn('Error stopping sensors:', error);
     }
-    if (MotionModule.stopTracking) {
-      MotionModule.stopTracking();
+    
+    // Calculate summary
+    const avgPosture = sessionData.postureReadings.length > 0
+      ? sessionData.postureReadings.reduce((a, b) => a + b) / sessionData.postureReadings.length
+      : 0;
+    
+    const avgBPM = sessionData.bpmReadings.length > 0
+      ? sessionData.bpmReadings.reduce((a, b) => a + b) / sessionData.bpmReadings.length
+      : 0;
+    
+    // Save session to database
+    const session = {
+      date: new Date().toISOString(),
+      duration: formatDuration(sessionData.duration),
+      score: Math.round(avgPosture),
+      avgBPM: Math.round(avgBPM),
+      steps: sessionData.steps,
+      turns: sessionData.turns,
+      energy: sessionData.energy,
+      routineName: await Database.getSelectedRoutine() || 'Freestyle'
+    };
+    
+    await Database.saveSession(session);
+    
+    // Stocker la session pour l'affichage dans la summary
+    sessionStorage.setItem('lastSessionSummary', JSON.stringify(session));
+    
+    // Navigate to home instead of summary (plus sûr si summary n'existe pas)
+    if (typeof Navigation !== 'undefined' && Navigation.navigate) {
+      Navigation.navigate('summary');
+    } else {
+      window.location.href = '/';
     }
   } catch (error) {
-    console.warn('Error stopping sensors:', error);
+    console.error('❌ Error ending session:', error);
+    // Fallback: retour à la home
+    if (typeof Navigation !== 'undefined' && Navigation.navigate) {
+      Navigation.navigate('home');
+    } else {
+      window.location.href = '/';
+    }
   }
-  
-  // Calculate summary
-  const avgPosture = sessionData.postureReadings.length > 0
-    ? sessionData.postureReadings.reduce((a, b) => a + b) / sessionData.postureReadings.length
-    : 0;
-  
-  const avgBPM = sessionData.bpmReadings.length > 0
-    ? sessionData.bpmReadings.reduce((a, b) => a + b) / sessionData.bpmReadings.length
-    : 0;
-  
-  // Save session to database
-  const session = {
-    date: new Date().toISOString(),
-    duration: formatDuration(sessionData.duration),
-    score: Math.round(avgPosture),
-    avgBPM: Math.round(avgBPM),
-    steps: sessionData.steps,
-    turns: sessionData.turns,
-    energy: sessionData.energy,
-    routineName: await Database.getSelectedRoutine() || 'Freestyle'
-  };
-  
-  await Database.saveSession(session);
-  
-  // Navigate to summary
-  Navigation.navigate('summary');
 }
 
 function formatDuration(seconds) {

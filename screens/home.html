@@ -460,35 +460,70 @@
 <script>
   // Load home stats on screen load
   (function() {
-    loadHomeStats();
-    updateHeaderThemeIcon(ThemeSystem?.getTheme() || 'dark');
+    if (typeof loadHomeStats === 'function') {
+      loadHomeStats().catch(err => console.warn('loadHomeStats error:', err));
+    }
+    if (typeof updateHeaderThemeIcon === 'function') {
+      updateHeaderThemeIcon(ThemeSystem?.getTheme() || 'dark');
+    }
   })();
 
-  function loadHomeStats() {
-    const sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
-    
-    if (sessions.length > 0) {
-      const totalSessions = sessions.length;
-      const avgScore = sessions.reduce((sum, s) => sum + (s.avgPosture || 0), 0) / sessions.length;
-      const totalSeconds = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-      const totalMinutes = Math.floor(totalSeconds / 60);
-      const totalHours = Math.floor(totalMinutes / 60);
-      
-      document.getElementById('total-sessions').textContent = totalSessions;
-      document.getElementById('avg-score').textContent = Math.round(avgScore) + '%';
-      
-      if (totalMinutes >= 60) {
-        document.getElementById('total-time').textContent = totalHours + 'h';
-      } else {
-        document.getElementById('total-time').textContent = totalMinutes + 'm';
+  async function loadHomeStats() {
+    // Utilise Database pour récupérer les stats
+    let stats = null;
+    try {
+      if (typeof Database !== 'undefined') {
+        // Ensure DB initialized if available
+        if (Database.init) {
+          await Database.init();
+        }
+        if (Database.getStatistics) {
+          stats = await Database.getStatistics();
+        }
+      }
+    } catch (err) {
+      console.warn('loadHomeStats: Database error, will use fallback', err);
+      stats = null;
+    }
+
+    // Retry once if stats missing (sometimes DB may be still warming up)
+    if (!stats || typeof stats.totalSessions === 'undefined') {
+      try {
+        await new Promise(r => setTimeout(r, 250));
+        if (typeof Database !== 'undefined' && Database.getStatistics) {
+          stats = await Database.getStatistics();
+        }
+      } catch (err) {
+        console.warn('loadHomeStats retry failed:', err);
       }
     }
-    
+
+    if (!stats) {
+      // fallback si Database non dispo
+      stats = { totalSessions: 0, avgScore: 0, totalTime: 0 };
+    }
+    const elSessions = document.getElementById('total-sessions');
+    const elAvgScore = document.getElementById('avg-score');
+    const elTotalTime = document.getElementById('total-time');
+    if (elSessions) elSessions.textContent = Number(stats.totalSessions || 0);
+    if (elAvgScore) elAvgScore.textContent = (Math.round(Number(stats.avgScore) || 0)) + '%';
+    // totalTime en minutes
+    const totalMinutes = Math.floor((Number(stats.totalTime) || 0) / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    if (elTotalTime) {
+      if (totalMinutes >= 60) {
+        elTotalTime.textContent = totalHours + 'h';
+      } else {
+        elTotalTime.textContent = totalMinutes + 'm';
+      }
+    }
     showRandomTip();
     updateNotificationBadge();
   }
 
   function showRandomTip() {
+    const elTip = document.getElementById('daily-tip');
+    if (!elTip) return;
     const tips = [
       'Keep your phone in landscape mode for better pose detection during practice sessions!',
       'Make sure you have good lighting for accurate motion tracking.',
@@ -503,7 +538,7 @@
     ];
     
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    document.getElementById('daily-tip').textContent = randomTip;
+    elTip.textContent = randomTip;
   }
 
   function startPractice() {
@@ -571,15 +606,13 @@
   // Update notification badge
   function updateNotificationBadge() {
     const badge = document.getElementById('notificationBadge');
-    if (badge) {
-      // Check for unread notifications (placeholder logic)
-      const unreadCount = 0; // Replace with actual notification count
-      if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        badge.style.display = 'block';
-      } else {
-        badge.style.display = 'none';
-      }
+    if (!badge) return;
+    const unreadCount = 0;
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
     }
   }
 

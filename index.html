@@ -162,36 +162,11 @@
           })
           .catch(error => {
             console.log('❌ Service Worker registration failed:', error);
-          });
-      });
-    }
-
-    // Handle offline/online status
-    window.addEventListener('online', () => {
-      document.getElementById('offline-notification').classList.add('d-none');
-      console.log('📶 Back online!');
-    });
-
-    window.addEventListener('offline', () => {
       document.getElementById('offline-notification').classList.remove('d-none');
       console.log('📵 You are offline');
     });
 
-    // Prevent zoom on iOS
-    document.addEventListener('gesturestart', function(e) {
-      e.preventDefault();
-      document.body.style.zoom = 0.99;
-    });
-
-    document.addEventListener('gesturechange', function(e) {
-      e.preventDefault();
-      document.body.style.zoom = 0.99;
-    });
-
-    document.addEventListener('gestureend', function(e) {
-      e.preventDefault();
-      document.body.style.zoom = 1;
-    });
+    // Suppression des handlers gesture non standards (zoom iOS)
   </script>
 
   <!-- ===== CONSOLE BRANDING ===== -->

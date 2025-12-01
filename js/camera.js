@@ -82,18 +82,36 @@ const CameraModule = {
       
       // Set video source
       this.video.srcObject = this.stream;
-      
-      // Wait for video to load
+
+      // Ensure autoplay is allowed by muting video (camera streams don't usually need audio, but some browsers block play)
+      try {
+        this.video.muted = true;
+      } catch (e) {
+        // ignore
+      }
+
+      // Wait for video metadata then ensure playback has actually started
       await new Promise((resolve) => {
-        this.video.onloadedmetadata = () => {
-          this.video.play();
-          resolve();
-        };
+        this.video.onloadedmetadata = () => resolve();
       });
-      
-      // Match canvas size to video
-      this.canvas.width = this.video.videoWidth;
-      this.canvas.height = this.video.videoHeight;
+
+      try {
+        // video.play() may return a promise that rejects in some browsers without user gesture
+        const playResult = this.video.play();
+        if (playResult && playResult.then) {
+          await playResult.catch(() => { /* ignore play rejection */ });
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // Match canvas pixel size to video intrinsic size
+      this.canvas.width = this.video.videoWidth || this.video.clientWidth || 640;
+      this.canvas.height = this.video.videoHeight || this.video.clientHeight || 480;
+
+      // Ensure CSS fills parent so scaling is consistent
+      this.canvas.style.width = '100%';
+      this.canvas.style.height = '100%';
       
       console.log('✅ Camera started');
       return true;
@@ -133,7 +151,20 @@ const CameraModule = {
       if (typeof poseDetection === 'undefined') {
         throw new Error('TensorFlow.js Pose Detection not loaded');
       }
-      
+      // Attendre que tf soit prêt et forcer le backend WebGL si WebGPU non initialisé
+      if (typeof tf !== 'undefined' && tf.ready) {
+        await tf.ready();
+        const backend = tf.getBackend();
+        if (backend === 'webgpu') {
+          // Si webgpu n'est pas prêt, forcer webgl
+          try {
+            await tf.setBackend('webgl');
+            await tf.ready();
+          } catch (e) {
+            console.warn('Impossible de forcer le backend webgl:', e);
+          }
+        }
+      }
       // Create detector with MoveNet Lightning (faster model)
       this.detector = await poseDetection.createDetector(
         poseDetection.SupportedModels.MoveNet,
@@ -143,7 +174,6 @@ const CameraModule = {
           minPoseScore: 0.25
         }
       );
-      
       console.log('✅ Pose detector initialized');
       return true;
     } catch (error) {
@@ -157,14 +187,34 @@ const CameraModule = {
    */
   async startPoseDetection(onPoseDetected) {
     if (!this.detector) {
-      await this.initPoseDetector();
+      // try to init detector with a couple of retries in case backend isn't ready yet
+      let attempts = 0;
+      const maxAttempts = 3;
+      while (attempts < maxAttempts && !this.detector) {
+        try {
+          await this.initPoseDetector();
+        } catch (e) {
+          attempts++;
+          console.warn('Retrying pose detector init...', attempts);
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+      if (!this.detector) {
+        throw new Error('Pose detector could not be initialized');
+      }
     }
     
     this.isDetecting = true;
     console.log('🤖 Starting pose detection...');
     
     const detectPose = async () => {
-      if (!this.isDetecting || !this.video || this.video.paused) {
+      if (!this.isDetecting || !this.video) {
+        requestAnimationFrame(detectPose);
+        return;
+      }
+      if (this.video.paused) {
+        // Si la vidéo est en pause, continuer la boucle sans détecter
+        requestAnimationFrame(detectPose);
         return;
       }
       
@@ -177,6 +227,8 @@ const CameraModule = {
           
           // Draw skeleton
           this.drawSkeleton(pose);
+          // small debug hint
+          // console.log('🦴 Drew skeleton with', pose.keypoints.length, 'keypoints');
           
           // Calculate posture score
           const postureScore = this.calculatePostureScore(pose);
@@ -201,6 +253,7 @@ const CameraModule = {
    * Draw skeleton overlay
    */
   drawSkeleton(pose) {
+    if (!this.ctx) return;
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
@@ -256,6 +309,8 @@ const CameraModule = {
     
     // Reset shadow
     this.ctx.shadowBlur = 0;
+    // restore context state if used
+    try { this.ctx.restore && this.ctx.restore(); } catch (e) { }
   },
   
   /**
@@ -303,8 +358,8 @@ const CameraModule = {
       checks++;
     }
     
-    // Return average score
-    return checks > 0 ? Math.round(score / checks * 100 / 100) : 0;
+    // Return average score (0-100)
+    return checks > 0 ? Math.round(score / checks) : 0;
   },
   
   /**
