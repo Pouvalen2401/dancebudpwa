@@ -1,92 +1,85 @@
 <div class="summary-screen min-vh-100" style="background: linear-gradient(to bottom, #0a0a0a, #000000);">
   <div class="container px-4 py-4">
-
+    
     <!-- Success Badge -->
     <div class="text-center mb-4 pt-4 fade-in">
-      <div class="success-badge mx-auto mb-4 pulse" 
-           style="width: 100px; height: 100px; border-radius: 50%; 
-           background: linear-gradient(135deg, #06b6d4, #10b981); 
-           display:flex; align-items:center; justify-content:center;">
-        <i class="bi bi-check-lg" style="font-size: 60px; color: white; font-weight: bold;"></i>
+      <div class="success-icon mx-auto d-flex align-items-center justify-content-center mb-3 glow-pulse" 
+           style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); border-radius: 50%; box-shadow: 0 0 40px rgba(6, 182, 212, 0.5);">
+        <i class="bi bi-check2 text-white" style="font-size: 60px; font-weight: bold;"></i>
       </div>
-
-      <h2 class="fw-bold mb-2">Great Session!</h2>
+      <h2 class="fw-bold mb-2">Great Session! 🎉</h2>
       <p class="text-muted">You're making excellent progress</p>
     </div>
 
-   <!-- Main Score Card -->
-<div class="card border-cyan mb-4"
-     style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1));">
-  <div class="card-body p-4 text-center">
-
-    <small class="text-muted d-block mb-2">Average Posture Score</small>
-
-    <h1 class="display-1 fw-bold mb-3"
-        style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
-               -webkit-background-clip: text;
-               background-clip: text;
-               -webkit-text-fill-color: transparent;
-               color: transparent;">
-      <span id="summaryScore">0</span>%
-    </h1>
-
-    <div class="progress" style="height: 12px; border-radius: 10px;">
-      <div id="summaryScoreBar" class="progress-bar" 
-           style="width: 0%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));">
-      </div>
+    <!-- Routine Name & Date -->
+    <div class="text-center mb-4">
+      <h4 id="summaryRoutineName" class="text-cyan mb-1">Freestyle</h4>
+      <small class="text-muted" id="summaryDate">Today</small>
     </div>
 
-  </div>
-</div>
-
+    <!-- Main Score Card -->
+    <div class="card border-cyan mb-4 slide-up" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1));">
+      <div class="card-body p-4 text-center">
+        <small class="text-muted d-block mb-2">AVERAGE POSTURE SCORE</small>
+        <h1 class="display-3 fw-bold text-cyan mb-2" id="summaryMainScore">0%</h1>
+        <div class="progress mx-auto mb-3" style="height: 12px; width: 80%; border-radius: 10px;">
+          <div id="summaryMainScoreBar" class="progress-bar" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));"></div>
+        </div>
+        <div id="summaryScoreFeedback" class="badge bg-success fs-6 px-3 py-2">
+          Excellent Performance!
+        </div>
+      </div>
+    </div>
 
     <!-- Stats Grid -->
-    <div class="row g-3 mb-4">
-
+    <div class="row g-3 mb-4 slide-up" style="animation-delay: 0.1s;">
+      <!-- Duration -->
       <div class="col-6">
-        <div class="card border-purple h-100">
+        <div class="card border-purple h-100" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), transparent);">
           <div class="card-body p-3 text-center">
-            <i class="bi bi-clock-history fs-3 text-purple mb-2"></i>
-            <h4 class="fw-bold mb-1" id="summaryDuration">0:00</h4>
-            <small class="text-muted">Duration</small>
+            <i class="bi bi-clock-history text-purple fs-3 mb-2"></i>
+            <div class="text-muted small mb-1">Duration</div>
+            <h4 class="fw-bold text-purple mb-0" id="summaryDuration">0:00</h4>
           </div>
         </div>
       </div>
 
+      <!-- BPM -->
       <div class="col-6">
-        <div class="card border-pink h-100">
+        <div class="card border-pink h-100" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), transparent);">
           <div class="card-body p-3 text-center">
-            <i class="bi bi-music-note fs-3 text-pink mb-2"></i>
-            <h4 class="fw-bold mb-1"><span id="summaryBPM">0</span> BPM</h4>
-            <small class="text-muted">Average Beat</small>
+            <i class="bi bi-music-note-beamed text-pink fs-3 mb-2"></i>
+            <div class="text-muted small mb-1">Avg BPM</div>
+            <h4 class="fw-bold text-pink mb-0" id="summaryBPM">0</h4>
           </div>
         </div>
       </div>
 
+      <!-- Steps -->
       <div class="col-6">
-        <div class="card border-cyan h-100">
+        <div class="card border-cyan h-100" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), transparent);">
           <div class="card-body p-3 text-center">
-            <i class="bi bi-footprints fs-3 text-cyan mb-2"></i>
-            <h4 class="fw-bold mb-1" id="summarySteps">0</h4>
-            <small class="text-muted">Total Steps</small>
+            <i class="bi bi-footprints text-cyan fs-3 mb-2"></i>
+            <div class="text-muted small mb-1">Total Steps</div>
+            <h4 class="fw-bold text-cyan mb-0" id="summarySteps">0</h4>
           </div>
         </div>
       </div>
 
+      <!-- Turns -->
       <div class="col-6">
-        <div class="card border-success h-100">
+        <div class="card border-success h-100" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);">
           <div class="card-body p-3 text-center">
-            <i class="bi bi-arrow-repeat fs-3 text-success mb-2"></i>
-            <h4 class="fw-bold mb-1" id="summaryTurns">0</h4>
-            <small class="text-muted">Turns</small>
+            <i class="bi bi-arrow-repeat text-success fs-3 mb-2"></i>
+            <div class="text-muted small mb-1">Turns</div>
+            <h4 class="fw-bold text-success mb-0" id="summaryTurns">0</h4>
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- Movement Intensity Chart -->
-    <div class="card border-cyan mb-4">
+    <!-- Motion Intensity Chart -->
+    <div class="card border-cyan mb-4 slide-up" style="animation-delay: 0.2s;">
       <div class="card-header bg-dark border-cyan">
         <h6 class="mb-0 fw-bold">
           <i class="bi bi-activity text-cyan me-2"></i>
@@ -94,60 +87,91 @@
         </h6>
       </div>
       <div class="card-body p-3">
-        <canvas id="intensityChart" height="150"></canvas>
+        <canvas id="motionChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Posture Over Time Chart -->
+    <div class="card border-purple mb-4 slide-up" style="animation-delay: 0.3s;">
+      <div class="card-header bg-dark border-purple">
+        <h6 class="mb-0 fw-bold">
+          <i class="bi bi-person-standing text-purple me-2"></i>
+          Posture Score Progress
+        </h6>
+      </div>
+      <div class="card-body p-3">
+        <canvas id="postureChart" height="200"></canvas>
       </div>
     </div>
 
     <!-- Session Snapshots -->
-    <div class="card border-purple mb-4">
-      <div class="card-header bg-dark border-purple">
+    <div class="card border-pink mb-4 slide-up" style="animation-delay: 0.4s;">
+      <div class="card-header bg-dark border-pink">
         <h6 class="mb-0 fw-bold">
-          <i class="bi bi-camera text-purple me-2"></i>
+          <i class="bi bi-camera text-pink me-2"></i>
           Session Highlights
         </h6>
       </div>
-
       <div class="card-body p-3">
-        <div class="row g-2">
-
+        <div class="row g-2" id="snapshotsContainer">
+          <!-- Placeholder snapshots -->
           <div class="col-4">
-            <div class="snapshot-placeholder">
-              <i class="bi bi-camera fs-1 text-muted"></i>
-              <small class="text-muted d-block mt-2">Best Pose</small>
+            <div class="snapshot-placeholder rounded-3 d-flex align-items-center justify-content-center" style="aspect-ratio: 1; background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2)); border: 1px solid var(--border-secondary);">
+              <i class="bi bi-camera fs-2 text-muted"></i>
+            </div>
+            <small class="text-muted d-block text-center mt-1">Start</small>
+          </div>
+          <div class="col-4">
+            <div class="snapshot-placeholder rounded-3 d-flex align-items-center justify-content-center" style="aspect-ratio: 1; background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2)); border: 1px solid var(--border-secondary);">
+              <i class="bi bi-camera fs-2 text-muted"></i>
+            </div>
+            <small class="text-muted d-block text-center mt-1">Middle</small>
+          </div>
+          <div class="col-4">
+            <div class="snapshot-placeholder rounded-3 d-flex align-items-center justify-content-center" style="aspect-ratio: 1; background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2)); border: 1px solid var(--border-secondary);">
+              <i class="bi bi-camera fs-2 text-muted"></i>
+            </div>
+            <small class="text-muted d-block text-center mt-1">End</small>
+          </div>
+        </div>
+        <p class="text-muted small text-center mt-3 mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          Snapshot capture coming in future update
+        </p>
+      </div>
+    </div>
+
+    <!-- Performance Insights -->
+    <div class="card border-warning mb-4 slide-up" style="animation-delay: 0.5s;">
+      <div class="card-body p-4" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent);">
+        <div class="d-flex align-items-start">
+          <i class="bi bi-lightbulb-fill fs-2 text-warning me-3 flex-shrink-0"></i>
+          <div>
+            <h6 class="fw-bold text-warning mb-2">💡 Performance Insights</h6>
+            <div id="insightsContainer">
+              <!-- Insights will be generated based on session data -->
             </div>
           </div>
-
-          <div class="col-4">
-            <div class="snapshot-placeholder">
-              <i class="bi bi-camera fs-1 text-muted"></i>
-              <small class="text-muted d-block mt-2">Peak Movement</small>
-            </div>
-          </div>
-
-          <div class="col-4">
-            <div class="snapshot-placeholder">
-              <i class="bi bi-camera fs-1 text-muted"></i>
-              <small class="text-muted d-block mt-2">Final Pose</small>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="d-grid gap-3 pb-4">
-      <button class="btn btn-primary btn-lg py-3" onclick="saveAndUpload()">
-        <i class="bi bi-cloud-upload me-2"></i>
-        Save & Upload Session
-      </button>
-
-      <button class="btn btn-outline-cyan" onclick="shareSession()">
+    <div class="space-y-3 pb-4">
+      <!-- Share Button -->
+      <button class="btn btn-outline-primary w-100 py-3 mb-3" onclick="shareSession()">
         <i class="bi bi-share me-2"></i>
-        Share Results
+        Share Your Progress
       </button>
 
-      <button class="btn btn-dark" onclick="Navigation.navigate('home')">
+      <!-- Save & Continue -->
+      <button class="btn btn-primary w-100 py-3 mb-3" onclick="saveAndContinue()">
+        <i class="bi bi-check-circle me-2"></i>
+        Save & Continue
+      </button>
+
+      <!-- Back to Home -->
+      <button class="btn btn-outline-secondary w-100 py-3" onclick="Navigation.navigate('home')">
         <i class="bi bi-house me-2"></i>
         Back to Home
       </button>
@@ -156,161 +180,414 @@
   </div>
 </div>
 
- <style>
-    .snapshot-placeholder {
-        aspect-ratio: 1;
-        background: var(--bg-card);
-        border: 2px dashed var(--border-secondary);
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 12px;
-        }
-    .btn-outline-cyan {
-        border: 2px solid var(--neon-cyan);
-        color: var(--neon-cyan);
-        }
-    .btn-outline-cyan:hover {
-        background: var(--neon-cyan);
-        color: white;
-        }
- </style>
+<style>
+/* Summary Screen Animations */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
 
- <script>
-    let sessionData = null;
-    // Load session summary data
-    async function loadSummaryData() {
-    try {
-    // Get latest session from database
-    const sessions = await Database.getRecentSessions(1);
-    if (sessions.length > 0) {
-        sessionData = sessions[0];
-    displaySummary(sessionData);
-    } else {
-    // Fallback to Session module if available
-    if (window.Session && Session.isActive) {
-            sessionData = Session.getSummary();
-    displaySummary(sessionData);
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-icon {
+  animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+</style>
+
+<script>
+// Load session summary data
+async function loadSummaryData() {
+  try {
+    // Get summary from sessionStorage (set by practice screen)
+    const summaryJSON = sessionStorage.getItem('lastSessionSummary');
+    
+    if (!summaryJSON) {
+      console.warn('No session summary found');
+      // Try to get last session from database
+      const sessions = await Database.getRecentSessions(1);
+      if (sessions.length > 0) {
+        displaySummary(sessions[0]);
+      } else {
+        showNoDataError();
+      }
+      return;
     }
-    }
-    } catch (error) {
+    
+    const summary = JSON.parse(summaryJSON);
+    displaySummary(summary);
+    
+    // Clear from session storage
+    sessionStorage.removeItem('lastSessionSummary');
+    
+  } catch (error) {
     console.error('Error loading summary:', error);
+    showNoDataError();
+  }
+}
+
+function displaySummary(summary) {
+  // Routine name and date
+  document.getElementById('summaryRoutineName').textContent = summary.routineName || 'Practice Session';
+  document.getElementById('summaryDate').textContent = formatDate(summary.date);
+  
+  // Main score
+  const score = Math.round(summary.score || 0);
+  document.getElementById('summaryMainScore').textContent = score + '%';
+  document.getElementById('summaryMainScoreBar').style.width = score + '%';
+  
+  // Score feedback
+  const feedback = getScoreFeedback(score);
+  const feedbackEl = document.getElementById('summaryScoreFeedback');
+  feedbackEl.textContent = feedback.text;
+  feedbackEl.className = `badge ${feedback.class} fs-6 px-3 py-2`;
+  
+  // Stats
+  document.getElementById('summaryDuration').textContent = summary.duration || '0:00';
+  document.getElementById('summaryBPM').textContent = Math.round(summary.avgBPM || 0);
+  document.getElementById('summarySteps').textContent = summary.steps || 0;
+  document.getElementById('summaryTurns').textContent = summary.turns || 0;
+  
+  // Generate insights
+  generateInsights(summary);
+  
+  // Create charts
+  createMotionChart(summary);
+  createPostureChart(summary);
+}
+
+function getScoreFeedback(score) {
+  if (score >= 90) return { text: '🌟 Outstanding Performance!', class: 'bg-success' };
+  if (score >= 80) return { text: '🎉 Excellent Work!', class: 'bg-success' };
+  if (score >= 70) return { text: '👍 Great Job!', class: 'bg-primary' };
+  if (score >= 60) return { text: '💪 Good Effort!', class: 'bg-info' };
+  if (score >= 50) return { text: '📈 Keep Improving!', class: 'bg-warning' };
+  return { text: '🎯 Room to Grow!', class: 'bg-secondary' };
+}
+
+function generateInsights(summary) {
+  const insights = [];
+  const score = summary.score || 0;
+  const steps = summary.steps || 0;
+  const turns = summary.turns || 0;
+  const bpm = summary.avgBPM || 0;
+  
+  // Posture insights
+  if (score >= 85) {
+    insights.push('Your posture was excellent throughout the session!');
+  } else if (score >= 70) {
+    insights.push('Good posture overall. Focus on keeping your back straight.');
+  } else {
+    insights.push('Try to maintain better posture. Stand tall and keep shoulders level.');
+  }
+  
+  // Activity insights
+  if (steps > 200) {
+    insights.push('Great movement! You were very active during this session.');
+  } else if (steps > 100) {
+    insights.push('Good activity level. Try to move more in your next session.');
+  } else {
+    insights.push('Consider adding more movement to increase your activity.');
+  }
+  
+  // Rhythm insights
+  if (bpm > 0) {
+    if (bpm >= 120 && bpm <= 140) {
+      insights.push('Perfect rhythm range for most dance styles!');
+    } else if (bpm > 140) {
+      insights.push('High-energy session! Great for cardio.');
+    } else {
+      insights.push('Slower pace - perfect for learning technique.');
     }
-    }
-    // Display summary data
-    function displaySummary(data) {
-    // Score
-    const score = Math.round(data.score || 0);
-    document.getElementById('summaryScore').textContent = score;
-    document.getElementById('summaryScoreBar').style.width = score + '%';
-    // Stats
-    document.getElementById('summaryDuration').textContent = data.duration || '0:00';
-    document.getElementById('summaryBPM').textContent = Math.round(data.avgBPM || 0);
-    document.getElementById('summarySteps').textContent = data.steps || 0;
-    document.getElementById('summaryTurns').textContent = data.turns || 0;
-    // Draw chart
-    drawIntensityChart(data);
-    }
-    // Draw intensity chart
-    function drawIntensityChart(data) {
-    const canvas = document.getElementById('intensityChart');
-    const ctx = canvas.getContext('2d');
-    // Generate sample data if not available
-    const dataPoints = data.postureReadings || generateSampleData(20);
-    new Chart(ctx, {
+  }
+  
+  // Display insights
+  const container = document.getElementById('insightsContainer');
+  container.innerHTML = insights.map(insight => 
+    `<p class="mb-2 small text-white-50">• ${insight}</p>`
+  ).join('');
+}
+
+function createMotionChart(summary) {
+  const ctx = document.getElementById('motionChart');
+  if (!ctx) return;
+  
+  // Generate sample data based on session
+  const duration = summary.durationSeconds || 300;
+  const dataPoints = Math.min(20, Math.floor(duration / 15)); // One point every 15 seconds
+  
+  const labels = [];
+  const data = [];
+  
+  for (let i = 0; i < dataPoints; i++) {
+    const seconds = Math.floor((i / dataPoints) * duration);
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    labels.push(`${minutes}:${secs.toString().padStart(2, '0')}`);
+    
+    // Simulate movement intensity (would be real data in production)
+    data.push(Math.random() * 60 + 40);
+  }
+  
+  new Chart(ctx, {
     type: 'line',
     data: {
-    labels: dataPoints.map((_, i) => ''),
-    datasets: [{
-    label: 'Intensity',
-    data: dataPoints,
-    borderColor: '#06b6d4',
-    backgroundColor: 'rgba(6, 182, 212, 0.1)',
-    borderWidth: 3,
-    fill: true,
-    tension: 0.4,
-    pointRadius: 0
-    }]
+      labels: labels,
+      datasets: [{
+        label: 'Movement Intensity',
+        data: data,
+        borderColor: 'rgba(6, 182, 212, 1)',
+        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: 'rgba(6, 182, 212, 1)'
+      }]
     },
     options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-    legend: { display: false },
-    tooltip: { enabled: false }
-    },
-    scales: {
-    y: {
-    beginAtZero: true,
-    max: 100,
-    grid: {
-    color: 'rgba(255, 255, 255, 0.1)'
-    },
-    ticks: {
-    color: '#666'
-    }
-            },
-            x: {
-            grid: {
-                display: false
-            },
-            ticks: {
-                display: false
-            }
-            }
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'rgba(6, 182, 212, 1)',
+          bodyColor: '#ffffff',
+          borderColor: 'rgba(6, 182, 212, 0.5)',
+          borderWidth: 1
         }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.5)',
+            maxRotation: 45,
+            minRotation: 45
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        y: {
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.5)'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
         }
-    });
+      }
     }
+  });
+}
+
+function createPostureChart(summary) {
+  const ctx = document.getElementById('postureChart');
+  if (!ctx) return;
+  
+  // Use actual posture readings if available
+  const postureReadings = summary.postureReadings || [];
+  
+  let labels = [];
+  let data = [];
+  
+  if (postureReadings.length > 0) {
+    // Sample down to max 20 points for readability
+    const step = Math.max(1, Math.floor(postureReadings.length / 20));
+    
+    for (let i = 0; i < postureReadings.length; i += step) {
+      const seconds = Math.floor((i / postureReadings.length) * (summary.durationSeconds || 300));
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      labels.push(`${minutes}:${secs.toString().padStart(2, '0')}`);
+      data.push(postureReadings[i]);
+    }
+  } else {
     // Generate sample data
-    function generateSampleData(count) {
-    const data = [];
-    for (let i = 0; i < count; i++) {
-        data.push(Math.random() * 40 + 60); // 60-100 range
+    for (let i = 0; i < 20; i++) {
+      labels.push(`${Math.floor(i * 0.5)}:${((i % 2) * 30).toString().padStart(2, '0')}`);
+      data.push(Math.random() * 30 + 60);
     }
-    return data;
+  }
+  
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Posture Score (%)',
+        data: data,
+        borderColor: 'rgba(168, 85, 247, 1)',
+        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: 'rgba(168, 85, 247, 1)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'rgba(168, 85, 247, 1)',
+          bodyColor: '#ffffff',
+          borderColor: 'rgba(168, 85, 247, 0.5)',
+          borderWidth: 1,
+          callbacks: {
+            label: function(context) {
+              return 'Posture: ' + Math.round(context.parsed.y) + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.5)',
+            maxRotation: 45,
+            minRotation: 45
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.5)',
+            callback: function(value) {
+              return value + '%';
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        }
+      }
     }
-    // Save and upload
-    async function saveAndUpload() {
-    try {
-        // Data already saved, just show confirmation
-        NotificationSystem.showToast('✅Session saved successfully!', 'success');
-        
-        // Navigate to home after delay
-        setTimeout(() => {
-        Navigation.navigate('home');
-        }, 1500);
-    } catch (error) {
-        console.error('Save error:', error);
-        NotificationSystem.showToast('❌Failed to save session', 'error');
-    }
-    }
-    // Share session
-    function shareSession() {
-    if (!sessionData) return;
-    
-    const shareText = `I just completed a ${sessionData.duration} dance session on DanceBud!
-    
-    Score: ${sessionData.score}%
-    Steps: ${sessionData.steps}
-    BPM: ${sessionData.avgBPM}
-    
-    #DanceBud #DanceCoach`;
-    
-    if (navigator.share) {
-        navigator.share({
-        title: 'DanceBud Session',
-        text: shareText
-        }).catch(err => console.log('Share cancelled', err));
-    } else {
-        // Fallback: copy to clipboard
-        navigator.clipboard.writeText(shareText).then(() => {
-        NotificationSystem.showToast('✅Copied to clipboard!', 'success');
-        });
-    }
-    }
-    // Load data on page show
-    loadSummaryData();
- </script>
+  });
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'Today';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  
+  if (diffHours < 1) return 'Just now';
+  if (diffHours < 24) return 'Today';
+  if (diffHours < 48) return 'Yesterday';
+  
+  return date.toLocaleDateString();
+}
+
+function shareSession() {
+  const summary = sessionStorage.getItem('lastSessionSummary') || '{}';
+  const data = JSON.parse(summary);
+  
+  const shareText = `Just completed a ${data.routineName || 'dance'} session on DanceBud! 💃
+📊 Score: ${Math.round(data.score || 0)}%
+⏱️ Duration: ${data.duration || '0:00'}
+👟 Steps: ${data.steps || 0}
+🔄 Turns: ${data.turns || 0}
+
+#DanceBud #DanceProgress`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: 'My DanceBud Session',
+      text: shareText
+    }).then(() => {
+      console.log('✅ Shared successfully');
+    }).catch((error) => {
+      console.log('Share cancelled or failed:', error);
+      fallbackShare(shareText);
+    });
+  } else {
+    fallbackShare(shareText);
+  }
+}
+
+function fallbackShare(text) {
+  // Copy to clipboard
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Session details copied to clipboard! Paste to share on social media.');
+  }).catch(() => {
+    alert('Share Text:\n\n' + text);
+  });
+}
+
+function saveAndContinue() {
+  // Session is already saved, just navigate
+  Navigation.navigate('home');
+}
+
+function showNoDataError() {
+  const container = document.querySelector('.summary-screen .container');
+  container.innerHTML = `
+    <div class="text-center py-5">
+      <i class="bi bi-exclamation-triangle fs-1 text-warning mb-3 d-block"></i>
+      <h5 class="mb-3">No Session Data Found</h5>
+      <p class="text-muted mb-4">Unable to load session summary.</p>
+      <button class="btn btn-primary" onclick="Navigation.navigate('home')">
+        <i class="bi bi-house me-2"></i>
+        Back to Home
+      </button>
+    </div>
+  `;
+}
+
+// Load summary on page load
+loadSummaryData();
+</script>
