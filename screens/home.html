@@ -350,10 +350,13 @@
   }
 </style>
 
-<header class="app-header">
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+<header class="app-header" role="banner">
   <!-- Left side: Logo and title -->
   <div class="header-left">
-    <div class="logo-small">
+    <div class="logo-small" aria-hidden="true">
       <i class="bi bi-lightning-charge-fill" style="color: white; font-size: 20px;"></i>
     </div>
     <div>
@@ -382,19 +385,21 @@
   </div>
 </header>
 
-<main style="padding: 20px; max-width: 600px; margin: 0 auto;">
+<main id="main-content" role="main" style="padding: 20px; max-width: 600px; margin: 0 auto;">
   <!-- Stats Grid (Pure CSS Grid) -->
-  <div class="stats-grid">
-    <div class="stat-card purple">
-      <div class="stat-icon">
-        <i class="bi bi-activity" style="color: #a855f7;"></i>
-      </div>
-      <div class="stat-value" id="total-sessions">0</div>
+  <section aria-labelledby="stats-heading">
+    <h2 id="stats-heading" class="visually-hidden">Your Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card purple">
+        <div class="stat-icon" aria-hidden="true">
+          <i class="bi bi-activity" style="color: #a855f7;"></i>
+        </div>
+        <div class="stat-value" id="total-sessions">0</div>
       <div class="stat-label">Sessions</div>
     </div>
     
     <div class="stat-card teal">
-      <div class="stat-icon">
+      <div class="stat-icon" aria-hidden="true">
         <i class="bi bi-bullseye" style="color: #06b6d4;"></i>
       </div>
       <div class="stat-value" id="avg-score">0%</div>
@@ -402,18 +407,19 @@
     </div>
     
     <div class="stat-card red">
-      <div class="stat-icon">
+      <div class="stat-icon" aria-hidden="true">
         <i class="bi bi-graph-up-arrow" style="color: #ec4899;"></i>
       </div>
       <div class="stat-value" id="total-time">0m</div>
       <div class="stat-label">Total Time</div>
     </div>
   </div>
+  </section>
 
   <!-- Start Practice Button -->
-  <button class="start-practice-btn" onclick="startPractice()">
+  <button class="start-practice-btn fade-in" onclick="startPractice()" aria-label="Start a new practice session">
     <div class="start-practice-content">
-      <div class="play-icon-wrapper">
+      <div class="play-icon-wrapper" aria-hidden="true">
         <i class="bi bi-play-fill"></i>
       </div>
       <div class="start-text">
@@ -421,40 +427,43 @@
         <p>Begin your dance session</p>
       </div>
     </div>
-    <i class="bi bi-chevron-right arrow-icon"></i>
+    <i class="bi bi-chevron-right arrow-icon" aria-hidden="true"></i>
   </button>
 
   <!-- Actions Container (CSS Grid) -->
-  <div class="actions-container">
-    <div class="action-card" onclick="browseRoutines()">
-      <div class="action-icon">
-        <i class="bi bi-music-note-list"></i>
-      </div>
-      <div class="action-text">
-        <h4>Browse Routines</h4>
-      </div>
-      <i class="bi bi-chevron-right action-arrow"></i>
-    </div>
+  <nav aria-labelledby="actions-heading">
+    <h2 id="actions-heading" class="visually-hidden">Actions</h2>
+    <div class="actions-container">
+      <button class="action-card slide-in-up" onclick="browseRoutines()" aria-label="Browse dance routines">
+        <div class="action-icon" aria-hidden="true">
+          <i class="bi bi-music-note-list"></i>
+        </div>
+        <div class="action-text">
+          <h4>Browse Routines</h4>
+        </div>
+        <i class="bi bi-chevron-right action-arrow" aria-hidden="true"></i>
+      </button>
 
-    <div class="action-card" onclick="viewHistory()">
-      <div class="action-icon" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));">
-        <i class="bi bi-clock-history" style="color: #06b6d4;"></i>
-      </div>
-      <div class="action-text">
-        <h4>Session History</h4>
-      </div>
-      <i class="bi bi-chevron-right action-arrow"></i>
+      <button class="action-card slide-in-up" onclick="viewHistory()" aria-label="View session history">
+        <div class="action-icon" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));" aria-hidden="true">
+          <i class="bi bi-clock-history" style="color: #06b6d4;"></i>
+        </div>
+        <div class="action-text">
+          <h4>Session History</h4>
+        </div>
+        <i class="bi bi-chevron-right action-arrow" aria-hidden="true"></i>
+      </button>
     </div>
-  </div>
+  </nav>
 
   <!-- Tip Card -->
-  <div class="tip-card">
+  <aside class="tip-card" role="note" aria-labelledby="tip-title">
     <div class="tip-header">
-      <i class="bi bi-lightning-charge-fill tip-icon"></i>
-      <h3 class="tip-title">Pro Tip</h3>
+      <i class="bi bi-lightning-charge-fill tip-icon" aria-hidden="true"></i>
+      <h3 class="tip-title" id="tip-title">Pro Tip</h3>
     </div>
     <p class="tip-text" id="daily-tip">Keep your phone in landscape mode for better pose detection during practice sessions!</p>
-  </div>
+  </aside>
 </main>
 
 <script>
