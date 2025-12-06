@@ -1,58 +1,59 @@
 {
-  "name": "DanceBud - Pocket-sized Dance Coach",
+  "name": "DanceBud - Your pocket-sized Dance Coach",
   "short_name": "DanceBud",
-  "description": "Dance coaching app using smartphone sensors",
-  "start_url": "/",
+  "description": "Your AI-powered dance coach with real-time pose detection and feedback.",
+  "start_url": "/dancebudpwa/",
+  "scope": "/dancebudpwa/",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#0f172a",
   "theme_color": "#06b6d4",
-  "orientation": "portrait",
-  "scope": "/",
+  "orientation": "portrait-primary",
+  "categories": ["health", "lifestyle", "sports"],
   "icons": [
     {
-      "src": "/assets/icons/icon-72x72.png",
+      "src": "assets/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-96x96.png",
+      "src": "assets/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-128x128.png",
+      "src": "assets/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-144x144.png",
+      "src": "assets/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-152x152.png",
+      "src": "assets/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-192x192.png",
+      "src": "assets/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/icons/icon-384x384.png",
+      "src": "assets/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-512x512.png",
+      "src": "assets/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -60,24 +61,16 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/screenshots/home.png",
+      "src": "screenshots/home.png",
       "sizes": "540x720",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["health", "lifestyle", "entertainment"],
-  "shortcuts": [
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
     {
-      "name": "Start Practice",
-      "short_name": "Practice",
-      "description": "Start a new dance practice session",
-      "url": "/?action=practice",
-      "icons": [
-        {
-          "src": "/assets/icons/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "src": "screenshots/practice.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
-}
+ }
