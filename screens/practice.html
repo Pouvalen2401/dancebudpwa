@@ -1,58 +1,58 @@
-<div class="practice-screen min-vh-100 d-flex flex-column" style="background: #000000;">
+<div class="practice-screen min-vh-100 d-flex flex-column" style="background: #000000;" role="region" aria-label="Practice session screen">
   <!-- Video Feed Container -->
   <div class="position-relative flex-grow-1">
     <!-- Video Element -->
-    <video id="practiceVideo" autoplay playsinline class="w-100 h-100" style="object-fit: cover;"></video>
+    <video id="practiceVideo" autoplay playsinline class="w-100 h-100" style="object-fit: cover;" aria-label="Camera feed for pose detection"></video>
     
     <!-- Canvas Overlay for Skeleton -->
-    <canvas id="poseCanvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;"></canvas>
+    <canvas id="poseCanvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;" aria-hidden="true"></canvas>
     
     <!-- Posture Feedback Badge (Top Left) -->
     <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
-      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-cyan">
+      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-cyan scale-in">
         <div class="d-flex align-items-center gap-2 mb-2">
-          <i class="bi bi-person-standing text-cyan"></i>
+          <i class="bi bi-person-standing text-cyan" aria-hidden="true"></i>
           <small class="text-muted">Posture</small>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <div class="progress flex-grow-1" style="height: 8px; width: 100px;">
-            <div id="postureBar" class="progress-bar bg-gradient" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #06b6d4, #10b981);"></div>
+          <div class="progress flex-grow-1" style="height: 8px; width: 100px;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Posture score">
+            <div id="postureBar" class="progress-bar bg-gradient" role="presentation" style="width: 0%; background: linear-gradient(90deg, #06b6d4, #10b981);"></div>
           </div>
-          <strong id="postureScore" class="text-cyan">0%</strong>
+          <strong id="postureScore" class="text-cyan" aria-live="polite">0%</strong>
         </div>
-        <small id="postureFeedback" class="text-success d-block mt-1">Stand straight</small>
+        <small id="postureFeedback" class="text-success d-block mt-1" aria-live="polite" aria-atomic="true">Stand straight</small>
       </div>
     </div>
     
     <!-- Timer (Top Right) -->
     <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
-      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-purple text-center">
-        <i class="bi bi-clock text-purple mb-1"></i>
-        <h4 id="sessionTimer" class="mb-0 text-purple fw-bold" style="font-family: 'Courier New', monospace;">00:00</h4>
+      <div class="badge-card bg-dark bg-opacity-75 backdrop-blur p-3 rounded-3 border border-purple text-center scale-in">
+        <i class="bi bi-clock text-purple mb-1" aria-hidden="true"></i>
+        <h4 id="sessionTimer" class="mb-0 text-purple fw-bold" style="font-family: 'Courier New', monospace;" aria-live="polite" aria-label="Session time">00:00</h4>
       </div>
     </div>
     
     <!-- BPM Detector (Bottom - Above Controls) -->
     <div class="position-absolute bottom-0 start-0 end-0 mb-5 pb-5 px-3" style="z-index: 10;">
-      <div class="bg-dark bg-opacity-90 backdrop-blur rounded-3 p-3 border border-purple">
+      <div class="bg-dark bg-opacity-90 backdrop-blur rounded-3 p-3 border border-purple scale-in">
         <div class="d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-3 flex-grow-1">
-            <div id="bpmPulse" class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(168, 85, 247, 0.2);">
+            <div id="bpmPulse" class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(168, 85, 247, 0.2);" aria-hidden="true">
               <i class="bi bi-music-note-beamed text-purple fs-5"></i>
             </div>
             <div class="flex-grow-1">
               <small class="text-muted d-block">Beat Detection</small>
-              <h5 id="bpmDisplay" class="mb-0 text-purple fw-bold">-- BPM</h5>
+              <h5 id="bpmDisplay" class="mb-0 text-purple fw-bold" aria-live="polite" aria-label="BPM detection">-- BPM</h5>
             </div>
           </div>
-          <button class="btn btn-sm btn-outline-purple" onclick="tapSync()">
-            <i class="bi bi-hand-index-thumb me-1"></i>
+          <button class="btn btn-sm btn-outline-purple" onclick="tapSync()" aria-label="Tap to sync with beat">
+            <i class="bi bi-hand-index-thumb me-1" aria-hidden="true"></i>
             Tap Sync
           </button>
         </div>
         
         <!-- Beat Visualizer -->
-        <div class="d-flex gap-1 mt-2" id="beatVisualizer">
+        <div class="d-flex gap-1 mt-2" id="beatVisualizer" aria-hidden="true">
           <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
           <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
           <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
@@ -72,22 +72,22 @@
     <div class="row g-2 mb-3">
       <div class="col-4">
         <div class="stat-mini bg-gradient-to-r from-cyan-900 to-transparent border border-cyan rounded-2 p-2 text-center">
-          <i class="bi bi-footprints text-cyan d-block mb-1"></i>
-          <h6 id="stepCount" class="mb-0 fw-bold text-cyan">0</h6>
+          <i class="bi bi-footprints text-cyan d-block mb-1" aria-hidden="true"></i>
+          <h6 id="stepCount" class="mb-0 fw-bold text-cyan" aria-label="Steps count" aria-live="polite">0</h6>
           <small class="text-muted" style="font-size: 10px;">Steps</small>
         </div>
       </div>
       <div class="col-4">
         <div class="stat-mini bg-gradient-to-r from-pink-900 to-transparent border border-pink rounded-2 p-2 text-center">
-          <i class="bi bi-arrow-repeat text-pink d-block mb-1"></i>
-          <h6 id="turnCount" class="mb-0 fw-bold text-pink">0</h6>
+          <i class="bi bi-arrow-repeat text-pink d-block mb-1" aria-hidden="true"></i>
+          <h6 id="turnCount" class="mb-0 fw-bold text-pink" aria-label="Turns count" aria-live="polite">0</h6>
           <small class="text-muted" style="font-size: 10px;">Turns</small>
         </div>
       </div>
       <div class="col-4">
         <div class="stat-mini bg-gradient-to-r from-purple-900 to-transparent border border-purple rounded-2 p-2 text-center">
-          <i class="bi bi-lightning text-purple d-block mb-1"></i>
-          <h6 id="energyLevel" class="mb-0 fw-bold text-purple">0</h6>
+          <i class="bi bi-lightning text-purple d-block mb-1" aria-hidden="true"></i>
+          <h6 id="energyLevel" class="mb-0 fw-bold text-purple" aria-label="Energy level" aria-live="polite">0</h6>
           <small class="text-muted" style="font-size: 10px;">Energy</small>
         </div>
       </div>
@@ -95,16 +95,16 @@
     
     <!-- Control Buttons -->
     <div class="d-flex gap-2">
-      <button id="pauseBtn" class="btn btn-warning flex-grow-1 py-3" onclick="togglePause()">
-        <i class="bi bi-pause-fill me-2"></i>
+      <button id="pauseBtn" class="btn btn-warning flex-grow-1 py-3" onclick="togglePause()" aria-label="Pause practice session">
+        <i class="bi bi-pause-fill me-2" aria-hidden="true"></i>
         <span id="pauseBtnText">Pause</span>
       </button>
-      <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()">
-        <i class="bi bi-stop-fill me-2"></i>
+      <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()" aria-label="End practice session">
+        <i class="bi bi-stop-fill me-2" aria-hidden="true"></i>
         End Session
       </button>
-      <button class="btn btn-dark px-3 py-3" onclick="Navigation.navigate('home')">
-        <i class="bi bi-x-lg"></i>
+      <button class="btn btn-dark px-3 py-3" onclick="Navigation.navigate('home')" aria-label="Close practice and return home">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
       </button>
     </div>
   </div>

@@ -115,6 +115,7 @@
        ========================================== -->
 
   <!-- 1. Storage Module (needed by all others) -->
+  <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
 
   <!-- 2. Database Module  -->
@@ -126,7 +127,7 @@
 
   <!-- 4. Theme Module (for dark/light toggle) -->
   <script src="js/theme.js"></script>
-
+  
   <!-- 5. Sensor Modules (camera, audio, motion) -->
   <script src="js/camera.js"></script>
   <script src="js/audio.js"></script>
@@ -172,7 +173,21 @@
       });
     }
 
-    // Suppression des handlers gesture non standards (zoom iOS)
+    // Prevent zoom on iOS
+    document.addEventListener('gesturestart', function(e) {
+      e.preventDefault();
+      document.body.style.zoom = 0.99;
+    });
+
+    document.addEventListener('gesturechange', function(e) {
+      e.preventDefault();
+      document.body.style.zoom = 0.99;
+    });
+
+    document.addEventListener('gestureend', function(e) {
+      e.preventDefault();
+      document.body.style.zoom = 1;
+    });
   </script>
 
   <!-- ===== CONSOLE BRANDING ===== -->
