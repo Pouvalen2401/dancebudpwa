@@ -215,8 +215,8 @@ self.addEventListener('message', (event) => {
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'New notification from DanceBud',
-    icon: '/dancebudpwa/assets/icons/icon-192x192.png',
-    badge: '/dancebudpwa/assets/icons/icon-72x72.png',
+    icon: '/dancebudpwa/asset/icons/icon-192x192.png',
+    badge: '/dancebudpwa/asset/icons/icon-72x72.png',
     vibrate: [200, 100, 200],
     tag: 'dancebud-notification',
     requireInteraction: false
