@@ -50,6 +50,14 @@ const Navigation = {
 
         console.log('✅ Navigation complete!');
       }, 300);
+      container.innerHTML = html;
+    
+    // Réinitialiser les contrôles de thème
+    if (window.ThemeManager) {
+      setTimeout(() => {
+        ThemeManager.updateAllThemeControls();
+      }, 100);
+    }
       
     } catch (error) {
       console.error('❌ Navigation error:', error);
