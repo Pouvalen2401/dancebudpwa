@@ -142,3 +142,4 @@ if (document.readyState === 'loading') {
 } else {
   ThemeManager.init();
 }
+// (No alias) Backwards compatibility was removed per user request
