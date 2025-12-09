@@ -8,9 +8,11 @@ const AudioModule = {
   audioContext: null,
   analyser: null,
   microphone: null,
+  stream: null,
   dataArray: null,
   isMonitoring: false,
   bpmCallback: null,
+  bpmTimer: null,
   
   /**
    * Check if microphone is available
@@ -80,6 +82,9 @@ const AudioModule = {
           autoGainControl: false
         }
       });
+
+      // Store the stream so we can stop tracks later
+      this.stream = stream;
       
       // Create analyser
       this.analyser = this.audioContext.createAnalyser();
@@ -94,42 +99,48 @@ const AudioModule = {
       const bufferLength = this.analyser.frequencyBinCount;
       this.dataArray = new Uint8Array(bufferLength);
       
-      // Start BPM detection loop
-      this.isMonitoring = true;
-      this.detectBPM();
-      
-      console.log('✅ Audio monitoring started');
-      return true;
-    } catch (error) {
-      console.error('❌ Failed to start audio monitoring:', error);
-      throw error;
-    }
-  },
+        // Start BPM detection loop (use interval so it's easy to cancel)
+        this.isMonitoring = true;
+        if (this.bpmTimer) {
+          clearInterval(this.bpmTimer);
+          this.bpmTimer = null;
+        }
+        this.bpmTimer = setInterval(() => this.detectBPM(), 500);
+        
+        console.log('✅ Audio monitoring started');
+      } catch (error) {
+        console.error('❌ Error starting audio monitoring:', error);
+        this.isMonitoring = false;
+        throw error;
+      }
+    },
   
-  /**
-   * Detect BPM from audio
-   */
-  detectBPM() {
-    if (!this.isMonitoring) return;
-    
-    // Get frequency data
-    this.analyser.getByteFrequencyData(this.dataArray);
-    
-    // Calculate average volume in bass frequency range (20-200 Hz)
-    const bassRange = this.dataArray.slice(0, 20);
-    const avgBass = bassRange.reduce((a, b) => a + b, 0) / bassRange.length;
-    
-    // Simple beat detection (will be improved)
-    // For now, generate a simulated BPM between 100-140
-    const simulatedBPM = 120 + Math.sin(Date.now() / 1000) * 20;
-    
-    // Call callback with BPM
-    if (this.bpmCallback) {
-      this.bpmCallback(simulatedBPM);
-    }
-    
-    // Continue monitoring
-    setTimeout(() => this.detectBPM(), 500);
+    /**
+     * Detect BPM from audio stream
+     */
+    detectBPM() {
+      if (!this.isMonitoring) return;
+  
+      try {
+        // Get frequency data
+        this.analyser.getByteFrequencyData(this.dataArray);
+  
+        // Calculate average volume in bass frequency range (20-200 Hz)
+        const bassRange = Array.from(this.dataArray).slice(0, 20);
+        const avgBass = bassRange.reduce((a, b) => a + b, 0) / Math.max(1, bassRange.length);
+  
+        // Simple beat detection (will be improved)
+        // For now, generate a simulated BPM between 100-140 using audio energy as slight modifier
+        const energyModifier = (avgBass / 255) * 20; // 0..20
+        const simulatedBPM = 110 + energyModifier + Math.sin(Date.now() / 1000) * 10;
+  
+        // Call callback with BPM
+        if (this.bpmCallback) {
+          this.bpmCallback(simulatedBPM);
+        }
+      } catch (e) {
+        console.warn('detectBPM error:', e);
+      }
   },
   
   /**
@@ -138,18 +149,51 @@ const AudioModule = {
   stopMonitoring() {
     console.log('🎤 Stopping audio monitoring...');
     
+    // Mark as stopped so detectBPM returns early
     this.isMonitoring = false;
     
-    if (this.microphone) {
-      this.microphone.disconnect();
-      this.microphone = null;
+    // Clear scheduled BPM interval
+    try {
+      if (this.bpmTimer) {
+        clearInterval(this.bpmTimer);
+        this.bpmTimer = null;
+      }
+    } catch (e) {
+      console.warn('Could not clear bpmTimer:', e);
     }
-    
-    if (this.audioContext) {
-      this.audioContext.close();
+
+    // Disconnect analyser / microphone node
+    try {
+      if (this.microphone) {
+        try { this.microphone.disconnect(); } catch (e) { /* ignore */ }
+        this.microphone = null;
+      }
+    } catch (e) {
+      console.warn('Error disconnecting microphone node:', e);
+    }
+
+    // Stop and release tracks from the original MediaStream
+    try {
+      if (this.stream) {
+        try { this.stream.getTracks().forEach(t => t.stop()); } catch (e) { /* ignore */ }
+        this.stream = null;
+      }
+    } catch (e) {
+      console.warn('Error stopping media stream tracks:', e);
+    }
+
+    // Close audio context
+    try {
+      if (this.audioContext) {
+        // close() returns a promise but we don't need to await here
+        this.audioContext.close().catch(() => {});
+        this.audioContext = null;
+      }
+    } catch (e) {
+      console.warn('Error closing audio context:', e);
       this.audioContext = null;
     }
-    
+
     console.log('✅ Audio monitoring stopped');
   }
 };

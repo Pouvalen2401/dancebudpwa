@@ -6,6 +6,8 @@
 const MotionModule = {
   isTracking: false,
   callback: null,
+  boundHandleMotion: null,
+  boundHandleOrientation: null,
   
   // Step detection
   lastAcceleration: null,
@@ -93,9 +95,11 @@ const MotionModule = {
     if (this.isAvailable() && !this.useFallbackMode) {
       console.log('📱 Attempting to use real device sensors...');
       
-      // Add event listeners
-      window.addEventListener('devicemotion', this.handleMotion.bind(this));
-      window.addEventListener('deviceorientation', this.handleOrientation.bind(this));
+      // Add event listeners (store bound references so they can be removed later)
+      this.boundHandleMotion = this.handleMotion.bind(this);
+      this.boundHandleOrientation = this.handleOrientation.bind(this);
+      window.addEventListener('devicemotion', this.boundHandleMotion);
+      window.addEventListener('deviceorientation', this.boundHandleOrientation);
       
       // Check if sensors are actually working after 2 seconds
       setTimeout(() => {
@@ -284,9 +288,15 @@ const MotionModule = {
     
     this.isTracking = false;
     
-    // Stop real sensors
-    window.removeEventListener('devicemotion', this.handleMotion);
-    window.removeEventListener('deviceorientation', this.handleOrientation);
+    // Stop real sensors (use stored bound handlers)
+    if (this.boundHandleMotion) {
+      window.removeEventListener('devicemotion', this.boundHandleMotion);
+      this.boundHandleMotion = null;
+    }
+    if (this.boundHandleOrientation) {
+      window.removeEventListener('deviceorientation', this.boundHandleOrientation);
+      this.boundHandleOrientation = null;
+    }
     
     // Stop fallback mode
     if (this.fallbackInterval) {

@@ -62,6 +62,19 @@
           <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
           <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
         </div>
+        <!-- Music library picker (appears under beat detection) -->
+        <div class="d-flex justify-content-center mt-3" aria-hidden="false">
+              <button id="libraryPickerBtn" class="btn btn-outline-purple btn-sm" 
+                onclick="showInternalLibrary()" 
+                 aria-label="Choose audio from internal library">
+            <i class="bi bi-music-note-list me-1" aria-hidden="true"></i>
+            Choose From Library
+          </button>
+        </div>
+        <!-- Track choices (per-genre selection) -->
+        <div id="trackChoices" class="d-flex gap-2 justify-content-center flex-wrap mt-3" aria-live="polite"></div>
+        <!-- Internal library picker (hidden by default) -->
+        <div id="internalLibrary" class="bg-dark bg-opacity-95 border border-secondary rounded mt-3 p-2" style="display:none; max-height:220px; overflow:auto;" aria-hidden="true"></div>
       </div>
     </div>
   </div>
@@ -95,10 +108,20 @@
     
     <!-- Control Buttons -->
     <div class="d-flex gap-2">
-      <button id="pauseBtn" class="btn btn-warning flex-grow-1 py-3" onclick="togglePause()" aria-label="Pause practice session">
-        <i class="bi bi-pause-fill me-2" aria-hidden="true"></i>
-        <span id="pauseBtnText">Pause</span>
+      <button id="pauseBtn" class="btn btn-success flex-grow-1 py-3" onclick="togglePause()" aria-label="Start practice session" aria-pressed="false">
+        <i class="bi bi-play-fill me-2" aria-hidden="true"></i>
+        <span id="pauseBtnText">Start Session</span>
       </button>
+      <div class="d-flex flex-column align-items-center">
+        <button id="musicToggleBtn" class="btn btn-outline-secondary mb-2" onclick="toggleMusic()" aria-label="Toggle background music">
+          <i id="musicToggleIcon" class="bi bi-volume-up"></i>
+        </button>
+        <button id="uploadMusicBtn" class="btn btn-outline-secondary" onclick="document.getElementById('musicFileInput').click()" aria-label="Upload track">
+          <i class="bi bi-upload me-1"></i>Upload
+        </button>
+        <input id="musicFileInput" type="file" accept="audio/*" style="display:none" onchange="handleMusicFile(event)" />
+        <div id="currentTrackName" class="small text-muted mt-2" aria-live="polite" style="max-width:120px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">No track selected</div>
+      </div>
       <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()" aria-label="End practice session">
         <i class="bi bi-stop-fill me-2" aria-hidden="true"></i>
         End Session
@@ -153,18 +176,9 @@
 let sessionActive = false;
 let sessionPaused = false;
 let sessionStartTime = null;
+let sessionPauseStart = null; // timestamp when pause began
 let timerInterval = null;
 let tapTimes = [];
-
-// Session data
-const sessionData = {
-  steps: 0,
-  turns: 0,
-  energy: 0,
-  postureReadings: [],
-  bpmReadings: [],
-  duration: 0
-};
 
 // Initialize practice screen
 async function initPracticeScreen() {
@@ -177,12 +191,7 @@ async function initPracticeScreen() {
       sessionActive = false;
       tapTimes = [];
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-      sessionData.steps = 0;
-      sessionData.turns = 0;
-      sessionData.energy = 0;
-      sessionData.postureReadings = [];
-      sessionData.bpmReadings = [];
-      sessionData.duration = 0;
+      // Session data is managed centrally by `Session` module
     } catch (e) {
       console.warn('Could not fully reset session state:', e);
     }
@@ -191,41 +200,29 @@ async function initPracticeScreen() {
     const video = document.getElementById('practiceVideo');
     const canvas = document.getElementById('poseCanvas');
     
-    // Start camera
+    // Start camera preview only. Session (detection, audio, motion, timer)
+    // will start when the user clicks the "Start Session" button.
     await CameraModule.startCamera(video, canvas);
-    console.log('✅ Camera started');
-    
-    // Start pose detection
-    await CameraModule.startPoseDetection((pose, score) => {
-      updatePosture(score);
-      sessionData.postureReadings.push(score);
-    });
-    console.log('✅ Pose detection started');
-    
-    // Start audio monitoring (Member 2 will implement)
+    console.log('✅ Camera preview started (session not started)');
+    // Try to restore previously chosen audio handle (Chromium-only). This will
+    // load the file into MusicPlayer but will not autoplay.
     try {
-      await AudioModule.startMonitoring((bpm) => {
-        updateBPM(bpm);
-        sessionData.bpmReadings.push(bpm);
-      });
-      console.log('✅ Audio monitoring started');
-    } catch (error) {
-      console.warn('⚠️ Audio monitoring not available yet');
+      if (typeof tryRestoreUserAudio === 'function') {
+        tryRestoreUserAudio().catch(err => console.warn('restore audio failed:', err));
+      }
+    } catch (e) {
+      console.warn('Audio restore skipped:', e);
     }
-    
-    // Start motion tracking (Member 2 will implement)
+    // Render curated track choices for the selected routine (if any)
     try {
-      await MotionModule.startTracking((data) => {
-        updateMotionStats(data);
-      });
-      console.log('✅ Motion tracking started');
-    } catch (error) {
-      console.warn('⚠️ Motion tracking not available yet');
-    }
-    
-    // Start session timer
-    startSessionTimer();
-    sessionActive = true;
+      let routineName = null;
+      if (window.Database && Database.getSelectedRoutine) {
+        try { routineName = await Database.getSelectedRoutine(); } catch (e) { routineName = null; }
+      }
+      if (!routineName && Session && Session.data && Session.data.routineName) routineName = Session.data.routineName;
+      if (!routineName) routineName = 'Freestyle';
+      try { renderTrackChoices(routineName); } catch (e) { console.warn('renderTrackChoices failed:', e); }
+    } catch (e) { /* ignore */ }
     
   } catch (error) {
     console.error('❌ Failed to initialize practice screen:', error);
@@ -236,12 +233,14 @@ async function initPracticeScreen() {
 
 // Session timer
 function startSessionTimer() {
+  // prevent multiple timers from being created
+  if (timerInterval) return;
   sessionStartTime = Date.now();
   
   timerInterval = setInterval(() => {
     if (!sessionPaused) {
       const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
-      sessionData.duration = elapsed;
+      // duration is managed by Session; keep local UI fallback minimal
       
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
@@ -295,17 +294,15 @@ function updateBPM(bpm) {
 // Update motion stats
 function updateMotionStats(data) {
   if (data.steps !== undefined) {
-    sessionData.steps = data.steps;
     document.getElementById('stepCount').textContent = data.steps;
   }
   
   if (data.turns !== undefined) {
-    sessionData.turns = data.turns;
     document.getElementById('turnCount').textContent = data.turns;
   }
   
   if (data.energy !== undefined) {
-    sessionData.energy = data.energy;
+    // Session.data will carry the canonical energy value; UI updated here
     document.getElementById('energyLevel').textContent = Math.round(data.energy);
   }
 }
@@ -334,33 +331,391 @@ function tapSync() {
   }
 }
 
-// Toggle pause
-function togglePause() {
-  sessionPaused = !sessionPaused;
-  
-  const btn = document.getElementById('pauseBtn');
-  const btnText = document.getElementById('pauseBtnText');
-  
-  if (sessionPaused) {
-    btn.className = 'btn btn-success flex-grow-1 py-3';
-    btnText.textContent = 'Resume';
-    btn.querySelector('i').className = 'bi bi-play-fill me-2';
-    
-    // Pause detection
-    CameraModule.stopPoseDetection();
-    
-  } else {
-    btn.className = 'btn btn-warning flex-grow-1 py-3';
-    btnText.textContent = 'Pause';
-    btn.querySelector('i').className = 'bi bi-pause-fill me-2';
-    
-    // Resume detection
-    CameraModule.startPoseDetection((pose, score) => {
-      updatePosture(score);
-      sessionData.postureReadings.push(score);
-    });
+// Try to restore previously chosen audio handle (Chromium-only)
+async function tryRestoreUserAudio() {
+  try {
+    if (!Database || !Database.getSetting) return;
+
+    const handle = await Database.getSetting('userAudioHandle', null);
+    if (!handle) return;
+
+    // If this is a File System FileHandle (Chrome), it will have a getFile() method
+    if (handle && typeof handle.getFile === 'function') {
+      // Try to query permissions if available
+      try {
+        if (typeof handle.queryPermission === 'function') {
+          const perm = await handle.queryPermission({ mode: 'read' });
+          if (perm !== 'granted' && typeof handle.requestPermission === 'function') {
+            const req = await handle.requestPermission({ mode: 'read' });
+            if (req !== 'granted') {
+              console.warn('User denied access to stored audio handle');
+              return;
+            }
+          } else if (perm !== 'granted' && typeof handle.requestPermission !== 'function') {
+            // cannot request permission programmatically; abort
+            console.warn('No permission to read stored audio handle');
+            return;
+          }
+        }
+      } catch (e) {
+        // Non-fatal: continue and attempt to get file
+        console.warn('Permission check for stored handle failed:', e);
+      }
+
+      const file = await handle.getFile();
+      if (file && typeof MusicPlayer !== 'undefined') {
+        MusicPlayer.loadFile(file);
+        const el = document.getElementById('currentTrackName');
+        if (el) el.textContent = file.name;
+        if (Session && Session.data) Session.data.trackName = file.name;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not restore persisted user audio:', e);
   }
 }
+
+// Toggle pause
+function togglePause() {
+  const btn = document.getElementById('pauseBtn');
+  const btnText = document.getElementById('pauseBtnText');
+
+  // If session never started, start it now via Session module
+  if (!sessionActive) {
+    // Hook Session callbacks to UI update functions
+    Session.onPosture = (score) => {
+      updatePosture(score);
+    };
+    Session.onBPM = (bpm) => {
+      updateBPM(bpm);
+    };
+    Session.onMotion = (data) => {
+      updateMotionStats(data);
+    };
+    Session.onTick = (formatted, seconds) => {
+      document.getElementById('sessionTimer').textContent = formatted;
+    };
+
+    // Start session
+    Session.start().catch(e => console.warn('Session.start failed:', e));
+
+    sessionActive = true;
+    sessionPaused = false;
+
+    btn.className = 'btn btn-warning flex-grow-1 py-3';
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Pause practice session');
+    btnText.textContent = 'Pause';
+    btn.querySelector('i').className = 'bi bi-pause-fill me-2';
+
+    // Start visuals (pulse)
+    try { const pulse = document.getElementById('bpmPulse'); if (pulse) pulse.style.animationPlayState = 'running'; } catch (e) {}
+
+    return;
+  }
+
+  // If session active, toggle pause/resume using Session
+  if (!sessionPaused) {
+    // Pause
+    Session.pause();
+    sessionPaused = true;
+
+    btn.className = 'btn btn-success flex-grow-1 py-3';
+    btn.setAttribute('aria-pressed', 'true');
+    btn.setAttribute('aria-label', 'Resume practice session');
+    btnText.textContent = 'Resume';
+    btn.querySelector('i').className = 'bi bi-play-fill me-2';
+
+    // Pause visuals
+    try { const pulse = document.getElementById('bpmPulse'); if (pulse) pulse.style.animationPlayState = 'paused'; } catch (e) {}
+    try { const bars = document.querySelectorAll('.beat-bar'); bars.forEach(b => b.classList.remove('active')); } catch (e) {}
+    try { const bpmDisplay = document.getElementById('bpmDisplay'); if (bpmDisplay) bpmDisplay.textContent = '-- BPM'; } catch (e) {}
+
+  } else {
+    // Resume
+    Session.resume();
+    sessionPaused = false;
+
+    btn.className = 'btn btn-warning flex-grow-1 py-3';
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Pause practice session');
+    btnText.textContent = 'Pause';
+    btn.querySelector('i').className = 'bi bi-pause-fill me-2';
+
+    // Resume visuals
+    try { const pulse = document.getElementById('bpmPulse'); if (pulse) pulse.style.animationPlayState = 'running'; } catch (e) {}
+  }
+}
+
+// Music controls
+function toggleMusic() {
+  try {
+    const icon = document.getElementById('musicToggleIcon');
+    if (!window.MusicPlayer) return;
+
+    if (MusicPlayer.isPlaying) {
+      MusicPlayer.pause();
+      if (icon) icon.className = 'bi bi-volume-mute';
+    } else {
+      // Try to play current routine track or loaded file
+      const routine = (Session && Session.data && Session.data.routineName) || null;
+      MusicPlayer.play(routine, { loop: true }).then(() => {
+        if (icon) icon.className = 'bi bi-volume-up';
+      }).catch(() => {
+        if (icon) icon.className = 'bi bi-volume-off';
+      });
+    }
+  } catch (e) {
+    console.warn('toggleMusic error:', e);
+  }
+}
+
+function handleMusicFile(event) {
+  const f = event.target.files && event.target.files[0];
+  if (!f) return;
+  try {
+    const url = MusicPlayer.loadFile(f);
+    // remember chosen track in session data
+    if (Session && Session.data) Session.data.trackName = f.name;
+    MusicPlayer.playLoaded({ loop: true }).then(() => {
+      const icon = document.getElementById('musicToggleIcon');
+      if (icon) icon.className = 'bi bi-volume-up';
+    }).catch(err => {
+      console.warn('playLoaded failed:', err);
+    });
+  } catch (e) {
+    console.warn('handleMusicFile error:', e);
+  }
+}
+
+// Feature-detect and try File System Access API
+async function pickUserAudioWithFSAPI() {
+  // Only in Chromium-based browsers
+  if (!window.showOpenFilePicker) return null;
+
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{
+        description: 'Audio files',
+        accept: { 'audio/*': ['.mp3', '.m4a', '.wav', '.ogg', '.flac'] }
+      }],
+      excludeAcceptAllOption: false,
+      multiple: false
+    });
+
+    // Persist handle if supported (IndexedDB can store it in Chromium)
+    try {
+      if (window.Database && Database.saveSetting) {
+        await Database.saveSetting('userAudioHandle', handle);
+      }
+    } catch (e) {
+      console.warn('Could not persist file handle:', e);
+    }
+
+    const file = await handle.getFile();
+    handleMusicFile({ target: { files: [file] } }); // reuse existing handler
+    return true;
+  } catch (e) {
+    console.warn('pickUserAudioWithFSAPI cancelled/failed:', e);
+    return null;
+  }
+}
+
+// Fallback wrapper called from UI
+async function pickUserAudio() {
+  // Try FS API first
+  const r = await pickUserAudioWithFSAPI();
+  if (r) return;
+  // Otherwise trigger file input (existing control)
+  document.getElementById('musicFileInput').click();
+}
+
+// Helpers for rendering per-genre track choices
+function normalizeRoutineKey(name) {
+  if (!name) return null;
+  return name.toString().toLowerCase().replace(/[^a-z0-9]+/g, '').trim();
+}
+
+function basename(path) {
+  if (!path) return '';
+  try { return path.split('/').pop(); } catch (e) { return path; }
+}
+
+// Render up to 5 tracks for the current routine key into #trackChoices
+function renderTrackChoices(routineName) {
+  try {
+    console.log('renderTrackChoices called with routineName:', routineName);
+    const key = normalizeRoutineKey(routineName || (Session && Session.data && Session.data.routineName) || null);
+    console.log('normalized key:', key);
+    const container = document.getElementById('trackChoices');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let tracks = (window.MusicPlayer && MusicPlayer.getTracksForKey) ? MusicPlayer.getTracksForKey(key) : [];
+    // If no tracks found for normalized key, try a few fallbacks (raw, without spaces/hyphens)
+    if ((!tracks || tracks.length === 0) && routineName) {
+      const raw = String(routineName).toLowerCase();
+      const noSpaces = raw.replace(/\s+/g, '');
+      const noHyphens = raw.replace(/-/g, '');
+      const candidates = [raw, noSpaces, noHyphens];
+      for (const c of candidates) {
+        if (!c) continue;
+        const tryTracks = MusicPlayer.getTracksForKey(c);
+        if (tryTracks && tryTracks.length) {
+          tracks = tryTracks;
+          console.log('renderTrackChoices: found tracks using fallback key:', c);
+          break;
+        }
+      }
+    }
+    console.log('renderTrackChoices: tracks found:', (tracks || []).length);
+
+    if (!tracks || tracks.length === 0) {
+      // No predefined tracks for this routine; show a subtle hint
+      const hint = document.createElement('div');
+      hint.className = 'small text-muted';
+      hint.textContent = 'No curated tracks for this routine. Upload or choose from library.';
+      container.appendChild(hint);
+      return;
+    }
+
+    tracks.slice(0,5).forEach((t, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-purple';
+      btn.style.maxWidth = '160px';
+      btn.style.whiteSpace = 'nowrap';
+      btn.style.overflow = 'hidden';
+      btn.style.textOverflow = 'ellipsis';
+      btn.title = basename(t);
+      btn.textContent = basename(t);
+      btn.onclick = async (e) => {
+        e.preventDefault();
+        try {
+          await MusicPlayer.playTrack(key, idx, { loop: true });
+          const el = document.getElementById('currentTrackName');
+          if (el) el.textContent = basename(t);
+          if (Session && Session.data) {
+            Session.data.trackName = basename(t);
+            Session.data.trackIndex = idx;
+          }
+          const icon = document.getElementById('musicToggleIcon');
+          if (icon) icon.className = 'bi bi-volume-up';
+        } catch (err) {
+          console.warn('Failed to play selected track:', err);
+        }
+      };
+      container.appendChild(btn);
+    });
+  } catch (e) {
+    console.warn('renderTrackChoices error:', e);
+  }
+}
+
+// When practice initializes, renderTrackChoices is called from initPracticeScreen
+
+// INTERNAL LIBRARY UI
+function getAllInternalTracks() {
+  try {
+    const map = (window.AppConfig && AppConfig.AUDIO_MAP) ? AppConfig.AUDIO_MAP : {};
+    const list = [];
+    Object.keys(map).forEach(key => {
+      const val = map[key];
+      if (Array.isArray(val)) {
+        val.forEach((t, idx) => list.push({ genre: key, url: t, index: idx }));
+      } else if (val) {
+        list.push({ genre: key, url: val, index: 0 });
+      }
+    });
+    return list;
+  } catch (e) { return []; }
+}
+
+function showInternalLibrary() {
+  try {
+    const container = document.getElementById('internalLibrary');
+    if (!container) return;
+    // Toggle visibility
+    if (container.style.display && container.style.display !== 'none') {
+      container.style.display = 'none';
+      container.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
+    container.innerHTML = '';
+    const list = getAllInternalTracks();
+    if (!list || list.length === 0) {
+      const no = document.createElement('div');
+      no.className = 'small text-muted px-2';
+      no.textContent = 'No internal tracks available.';
+      container.appendChild(no);
+      container.style.display = 'block';
+      container.setAttribute('aria-hidden', 'false');
+      return;
+    }
+
+    // Group by genre for a compact list
+    const grouped = {};
+    list.forEach(item => {
+      grouped[item.genre] = grouped[item.genre] || [];
+      grouped[item.genre].push(item);
+    });
+
+    Object.keys(grouped).forEach(genre => {
+      const header = document.createElement('div');
+      header.className = 'fw-bold text-cyan small mt-1 mb-1';
+      header.textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+      container.appendChild(header);
+
+      const row = document.createElement('div');
+      row.className = 'd-flex gap-2 flex-wrap mb-2';
+
+      grouped[genre].slice(0,5).forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-outline-purple';
+        btn.style.maxWidth = '160px';
+        btn.title = basename(item.url);
+        btn.textContent = basename(item.url);
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          try {
+            // Use MusicPlayer.play with direct URL (or playTrack for genre/index)
+            if (MusicPlayer && MusicPlayer.play) {
+              await MusicPlayer.play(item.url, { loop: true });
+            }
+            const el = document.getElementById('currentTrackName');
+            if (el) el.textContent = basename(item.url);
+            if (Session && Session.data) {
+              Session.data.trackName = basename(item.url);
+              Session.data.trackSource = 'internal';
+            }
+            // close library UI
+            container.style.display = 'none';
+            container.setAttribute('aria-hidden', 'true');
+            const icon = document.getElementById('musicToggleIcon');
+            if (icon) icon.className = 'bi bi-volume-up';
+          } catch (err) {
+            console.warn('Failed to play internal track:', err);
+          }
+        };
+        row.appendChild(btn);
+      });
+
+      container.appendChild(row);
+    });
+
+    // Add a small close hint
+    const hint = document.createElement('div');
+    hint.className = 'small text-muted px-2';
+    hint.textContent = 'Tap a track to play. Tap the button again to close.';
+    container.appendChild(hint);
+
+    container.style.display = 'block';
+    container.setAttribute('aria-hidden', 'false');
+  } catch (e) {
+    console.warn('showInternalLibrary error:', e);
+  }
+}
+
 
 // End session
 async function endSession() {
@@ -369,49 +724,25 @@ async function endSession() {
   }
   
   try {
-    // Stop everything
+    // Use Session.end() to finalize and save
     clearInterval(timerInterval);
     CameraModule.stopCamera();
-    CameraModule.stopPoseDetection();
-    
-    try {
-      if (AudioModule.stopMonitoring) {
-        AudioModule.stopMonitoring();
-      }
-      if (MotionModule.stopTracking) {
-        MotionModule.stopTracking();
-      }
-    } catch (error) {
-      console.warn('Error stopping sensors:', error);
-    }
-    
-    // Calculate summary
-    const avgPosture = sessionData.postureReadings.length > 0
-      ? sessionData.postureReadings.reduce((a, b) => a + b) / sessionData.postureReadings.length
-      : 0;
-    
-    const avgBPM = sessionData.bpmReadings.length > 0
-      ? sessionData.bpmReadings.reduce((a, b) => a + b) / sessionData.bpmReadings.length
-      : 0;
-    
-    // Save session to database
-    const session = {
+    const summary = await (Session.end ? Session.end() : (async () => null)());
+
+    // If Session.end returned a summary, use it; otherwise build a fallback
+    const finalSession = summary || {
       date: new Date().toISOString(),
-      duration: formatDuration(sessionData.duration),
-      score: Math.round(avgPosture),
-      avgBPM: Math.round(avgBPM),
-      steps: sessionData.steps,
-      turns: sessionData.turns,
-      energy: sessionData.energy,
+      duration: formatDuration((Session && Session.data && Session.data.duration) || 0),
+      score: 0,
+      avgBPM: 0,
+      steps: (Session && Session.data && Session.data.steps) || 0,
+      turns: (Session && Session.data && Session.data.turns) || 0,
+      energy: (Session && Session.data && Session.data.energy) || 0,
       routineName: await Database.getSelectedRoutine() || 'Freestyle'
     };
-    
-    await Database.saveSession(session);
-    
-    // Stocker la session pour l'affichage dans la summary
-    sessionStorage.setItem('lastSessionSummary', JSON.stringify(session));
-    
-    // Navigate to home instead of summary (plus sûr si summary n'existe pas)
+
+    sessionStorage.setItem('lastSessionSummary', JSON.stringify(finalSession));
+
     if (typeof Navigation !== 'undefined' && Navigation.navigate) {
       Navigation.navigate('summary');
     } else {

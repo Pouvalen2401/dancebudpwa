@@ -40,6 +40,67 @@
     turnThreshold: 45,
     sampleRate: 100
   }
+  ,
+  // Map genre keys to arrays of audio file paths (place MP3s under assets/audio/)
+  // Each genre provides a small curated set of 5 tracks the user can choose from.
+  AUDIO_MAP: {
+    'hiphop': [
+      'assets/audio/hiphop-1.mp3',
+      'assets/audio/hiphop-2.mp3',
+      'assets/audio/hiphop-3.mp3',
+      'assets/audio/hiphop-4.mp3',
+      'assets/audio/hiphop-5.mp3'
+    ],
+    'contemporary': [
+      'assets/audio/contemporary-1.mp3',
+      'assets/audio/contemporary-2.mp3',
+      'assets/audio/contemporary-3.mp3',
+      'assets/audio/contemporary-4.mp3',
+      'assets/audio/contemporary-5.mp3'
+    ],
+    'ballet': [
+      'assets/audio/ballet-1.mp3',
+      'assets/audio/ballet-2.mp3',
+      'assets/audio/ballet-3.mp3',
+      'assets/audio/ballet-4.mp3',
+      'assets/audio/ballet-5.mp3'
+    ],
+    'latin': [
+      'assets/audio/latin-1.mp3',
+      'assets/audio/latin-2.mp3',
+      'assets/audio/latin-3.mp3',
+      'assets/audio/latin-4.mp3',
+      'assets/audio/latin-5.mp3'
+    ],
+    'freestyle': [
+      'assets/audio/freestyle-1.mp3',
+      'assets/audio/freestyle-2.mp3',
+      'assets/audio/freestyle-3.mp3',
+      'assets/audio/freestyle-4.mp3',
+      'assets/audio/freestyle-5.mp3'
+    ],
+    'pop': [
+      'assets/audio/pop-1.mp3',
+      'assets/audio/pop-2.mp3',
+      'assets/audio/pop-3.mp3',
+      'assets/audio/pop-4.mp3',
+      'assets/audio/pop-5.mp3'
+    ],
+    'salsa': [
+      'assets/audio/salsa-1.mp3',
+      'assets/audio/salsa-2.mp3',
+      'assets/audio/salsa-3.mp3',
+      'assets/audio/salsa-4.mp3',
+      'assets/audio/salsa-5.mp3'
+    ],
+    'jazz': [
+      'assets/audio/jazz-1.mp3',
+      'assets/audio/jazz-2.mp3',
+      'assets/audio/jazz-3.mp3',
+      'assets/audio/jazz-4.mp3',
+      'assets/audio/jazz-5.mp3'
+    ]
+  }
  };
  // Make globally available
  window.AppConfig = AppConfig;

@@ -1,7 +1,7 @@
 {
   "name": "DanceBud - Your pocket-sized Dance Coach",
   "short_name": "DanceBud",
-  "description": "Your AI-powered dance coach with real-time pose detection and feedback.",
+  "description": "Your pocket-sized dance coach with real-time pose detection and feedback.",
   "start_url": "/dancebudpwa/",
   "scope": "/dancebudpwa/",
   "display": "standalone",
