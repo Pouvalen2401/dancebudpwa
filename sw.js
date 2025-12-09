@@ -4,8 +4,12 @@
  */
 
 // ========== VERSION & CONFIGURATION ==========
-const CACHE_VERSION = 'v1.0.0';
-const CACHE_NAME = `dancebudpwa-${CACHE_VERSION}`;
+
+
+const CACHE_VERSION = 'v2';  // <— change this any time you update routes
+const CACHE_NAME = 'dancebud-cache-' + CACHE_VERSION;
+
+
 
 // ========== FILES TO CACHE ==========
 const urlsToCache = [
