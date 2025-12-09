@@ -26,15 +26,15 @@ const urlsToCache = [
   '/dancebudpwa/js/session.js',
   '/dancebudpwa/js/storage.js',
 
-  // Icons (correct path!)
-  '/dancebudpwa/assets/icons/icon-72x72.png',
-  '/dancebudpwa/assets/icons/icon-96x96.png',
-  '/dancebudpwa/assets/icons/icon-128x128.png',
-  '/dancebudpwa/assets/icons/icon-144x144.png',
-  '/dancebudpwa/assets/icons/icon-152x152.png',
-  '/dancebudpwa/assets/icons/icon-192x192.png',
-  '/dancebudpwa/assets/icons/icon-384x384.png',
-  '/dancebudpwa/assets/icons/icon-512x512.png'
+  // Icons path
+  '/dancebudpwa/asset/icons/icon-72x72.png',
+  '/dancebudpwa/asset/icons/icon-96x96.png',
+  '/dancebudpwa/asset/icons/icon-128x128.png',
+  '/dancebudpwa/asset/icons/icon-144x144.png',
+  '/dancebudpwa/asset/icons/icon-152x152.png',
+  '/dancebudpwa/asset/icons/icon-192x192.png',
+  '/dancebudpwa/asset/icons/icon-384x384.png',
+  '/dancebudpwa/asset/icons/icon-512x512.png'
 ];
 
 // ===== INSTALL =====
