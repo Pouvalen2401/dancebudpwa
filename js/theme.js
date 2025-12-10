@@ -1,68 +1,126 @@
 /**
- * Theme Management System
- * Handles dark/light mode switching across the app
+ * Theme Management Module
+ * Centralized theme control for the entire app
  */
 
-const ThemeSystem = {
-  currentTheme: 'dark',
+const ThemeManager = {
+  currentTheme: 'dark', // default
   
   /**
-   * Initialize theme system
+   * Initialize theme on app load
    */
-  async init() {
-    console.log('🎨 Initializing theme system...');
+  init() {
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('app-theme') || 'dark';
+    this.setTheme(savedTheme, false); // false = don't save again
     
-    try {
-      // Load saved theme preference
-      const settings = await Database.getSettings();
-      const savedTheme = settings?.darkMode !== false ? 'dark' : 'light';
-      
-      this.setTheme(savedTheme);
-      console.log('✅ Theme loaded:', savedTheme);
-    } catch (error) {
-      console.error('Theme init error:', error);
-      // Default to dark theme
-      this.setTheme('dark');
-    }
+    // Update all UI elements
+    this.updateAllThemeControls();
+    
+    console.log('Theme initialized:', savedTheme);
   },
   
   /**
    * Set theme
    */
-  setTheme(theme) {
+  setTheme(theme, save = true) {
     this.currentTheme = theme;
-    const root = document.documentElement;
     
+    // Apply theme to document
     if (theme === 'dark') {
-      root.setAttribute('data-theme', 'dark');
-      root.style.colorScheme = 'dark';
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
     } else {
-      root.setAttribute('data-theme', 'light');
-      root.style.colorScheme = 'light';
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
     }
     
-    // Update meta theme-color for mobile browsers
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+    // Save to localStorage
+    if (save) {
+      localStorage.setItem('app-theme', theme);
+      console.log('Theme saved:', theme);
+    }
+    
+    // Update all theme controls in the UI
+    this.updateAllThemeControls();
+    
+    // Dispatch custom event for other modules
+    window.dispatchEvent(new CustomEvent('themeChanged', { 
+      detail: { theme } 
+    }));
+  },
+  
+  /**
+   * Toggle between light and dark
+   */
+  toggle() {
+    const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.setTheme(newTheme);
+  },
+  
+  /**
+   * Update all theme controls in the UI
+   */
+  updateAllThemeControls() {
+    // Update home page button
+    this.updateHomeButton();
+    
+    // Update settings toggle
+    this.updateSettingsToggle();
+    
+    // Update settings display
+    this.updateSettingsDisplay();
+  },
+  
+  /**
+   * Update home page moon/sun button
+   */
+  updateHomeButton() {
+    const themeBtn = document.getElementById('theme-toggle');
+    if (!themeBtn) return;
+    
+    const icon = themeBtn.querySelector('i');
+    if (!icon) return;
+    
+    if (this.currentTheme === 'dark') {
+      icon.className = 'bi bi-moon-stars-fill';
+      themeBtn.setAttribute('title', 'Switch to Light Mode');
+    } else {
+      icon.className = 'bi bi-sun-fill';
+      themeBtn.setAttribute('title', 'Switch to Dark Mode');
     }
   },
   
   /**
-   * Toggle theme
+   * Update settings page toggle switch
    */
-  async toggle() {
-    const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
-    this.setTheme(newTheme);
+  updateSettingsToggle() {
+    const toggle = document.getElementById('dark-mode-toggle');
+    if (!toggle) return;
     
-    // Save preference
-    try {
-      await Database.saveSetting('darkMode', newTheme === 'dark');
-    } catch (error) {
-      console.error('Error saving theme:', error);
+    // Update toggle state
+    toggle.checked = (this.currentTheme === 'dark');
+  },
+  
+  /**
+   * Update settings page display text
+   */
+  updateSettingsDisplay() {
+    const themeTitle = document.getElementById('current-theme-title');
+    const themeSubtitle = document.getElementById('current-theme-subtitle');
+    const themeIcon = document.getElementById('current-theme-icon');
+    
+    if (this.currentTheme === 'dark') {
+      if (themeTitle) themeTitle.textContent = 'Dark Theme';
+      if (themeSubtitle) themeSubtitle.textContent = 'Current theme';
+      if (themeIcon) themeIcon.className = 'bi bi-moon-stars-fill';
+    } else {
+      if (themeTitle) themeTitle.textContent = 'Light Theme';
+      if (themeSubtitle) themeSubtitle.textContent = 'Current theme';
+      if (themeIcon) themeIcon.className = 'bi bi-sun-fill';
     }
-    
-    return newTheme;
   },
   
   /**
@@ -70,15 +128,18 @@ const ThemeSystem = {
    */
   getTheme() {
     return this.currentTheme;
-  },
-  
-  /**
-   * Check if dark mode
-   */
-  isDark() {
-    return this.currentTheme === 'dark';
   }
 };
 
-// Export for use in other modules
-window.ThemeSystem = ThemeSystem;
+// Make globally available
+window.ThemeManager = ThemeManager;
+
+// Initialize theme when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    ThemeManager.init();
+  });
+} else {
+  ThemeManager.init();
+}
+// (No alias) Backwards compatibility was removed per user request

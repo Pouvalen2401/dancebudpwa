@@ -209,7 +209,7 @@ const CameraModule = {
     
     const detectPose = async () => {
       if (!this.isDetecting || !this.video) {
-        requestAnimationFrame(detectPose);
+        // if detection has been stopped, exit and don't schedule another frame
         return;
       }
       if (this.video.paused) {

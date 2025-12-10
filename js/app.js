@@ -7,8 +7,19 @@
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🎉 DanceBud App Started!');
   
-  // Initialize theme system FIRST
-  await ThemeSystem.init();
+  // Initialize theme system FIRST (guarded to avoid halting startup if missing)
+  try {
+    if (typeof ThemeSystem !== 'undefined' && ThemeSystem && ThemeSystem.init) {
+      await ThemeSystem.init();
+    } else if (typeof ThemeManager !== 'undefined' && ThemeManager && ThemeManager.init) {
+      // ThemeManager might be synchronous
+      await Promise.resolve(ThemeManager.init());
+    } else {
+      console.warn('No theme system available; skipping theme init');
+    }
+  } catch (e) {
+    console.warn('Theme initialization failed, continuing startup:', e);
+  }
   
   // Initialize database
   await Database.init();

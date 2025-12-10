@@ -44,6 +44,45 @@
   --shadow-color: rgba(6, 182, 212, 0.2);
 }
 
+/* Theme Preview in Settings */
+.theme-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.theme-preview i {
+  font-size: 2rem;
+  color: var(--neon-cyan);
+}
+
+.theme-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.theme-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Light mode adjustments */
+body.light-mode .theme-preview {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(139, 92, 246, 0.05));
+  border-color: rgba(6, 182, 212, 0.2);
+}
+
+
+
+
 /* Light Theme */
 [data-theme="light"] {
   /* Backgrounds */

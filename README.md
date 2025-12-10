@@ -3,6 +3,41 @@ Dance Coach Progressive Web App
 # 
 �
 �
+## Local Development & Testing
+
+Use a local static server so the app has a proper origin (required for camera/microphone, module imports, and service worker). Pick one of the options below.
+
+- **VS Code (recommended)**: Install the *Live Server* extension and click **Go Live** in the status bar.
+- **Node (npx)**: If you have Node.js, run this in PowerShell from the repo root:
+
+```powershell
+npx http-server -p 8000
+# or
+npx serve -p 8000
+```
+
+- **Python (fallback)**:
+
+```powershell
+python -m http.server 8000
+```
+
+Then open `http://localhost:8000/index.html` in your browser (Chrome or Edge recommended).
+
+Quick music & session test
+- Open the **Practice** screen.
+- Click **Start Session** (this user gesture allows playback on most browsers).
+- The app will request Camera / Microphone / Motion permissions if needed.
+- Background music is attempted automatically (resolved via `js/config.js` `AUDIO_MAP`). If autoplay is blocked, use the music toggle button or upload a track via the **Upload** control in Practice.
+- Verify Pause/Resume: Pause should stop the timer, sensors, and music; Resume should continue without jumping the timer.
+
+Troubleshooting
+- If music does not play: check DevTools Console for autoplay/permission warnings and click the music control to start manually.
+- If sensors or camera don't start: grant permissions and refresh the page.
+
+Notes
+- Use Chrome for best compatibility with autoplay, getUserMedia, and DeviceMotion permissions.
+
  DanceBud User Guide
  ## Your AI-Powered Dance Coach--
 ## 

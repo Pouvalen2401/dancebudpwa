@@ -51,6 +51,7 @@ const Navigation = {
         console.log('✅ Navigation complete!');
       }, 300);
       
+      
     } catch (error) {
       console.error('❌ Navigation error:', error);
       this.showError(screenName, error);

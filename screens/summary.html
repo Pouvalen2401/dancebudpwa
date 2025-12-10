@@ -240,11 +240,22 @@
         const session = JSON.parse(lastSession);
         
         // Mettre à jour les valeurs
-        const score = session.score || 85;
+        // Prefer an explicit numeric score when provided. Otherwise compute an average
+        // from recorded posture readings if available. Fall back to 0 (not 85).
+        let score;
+        if (typeof session.score === 'number') {
+          score = session.score;
+        } else if (session.postureReadings && session.postureReadings.length > 0) {
+          const sum = session.postureReadings.reduce((a, b) => a + (Number(b) || 0), 0);
+          score = Math.round(sum / session.postureReadings.length);
+        } else {
+          score = 0;
+        }
+
         document.getElementById('scoreValue').textContent = score + '%';
-        document.getElementById('durationValue').textContent = session.duration || '5m 30s';
-        document.getElementById('avgBPMValue').textContent = session.avgBPM || '120';
-        document.getElementById('energyValue').textContent = session.energy + '%' || '75%';
+        document.getElementById('durationValue').textContent = session.duration || '0:00';
+        document.getElementById('avgBPMValue').textContent = (typeof session.avgBPM === 'number' ? session.avgBPM : (session.bpmReadings && session.bpmReadings.length ? Math.round(session.bpmReadings.reduce((a,b)=>a+Number(b||0),0)/session.bpmReadings.length) : '--'));
+        document.getElementById('energyValue').textContent = (typeof session.energy === 'number' ? Math.round(session.energy) + '%' : (session.energy ? session.energy + '%' : '0%'));
         
         // Générer un feedback basé sur le score
         generateFeedback(score);

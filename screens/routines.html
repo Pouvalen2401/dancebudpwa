@@ -176,6 +176,15 @@
       // Fallback: navigate to permissions anyway
       Navigation.navigate('permissions');
     }
+    function loadRoutinePreset(routineType) {
+    const src = RoutineAudio[routineType];
+    if (!src) return;
+
+    MusicPlayer.loadSource(src);   // NEW METHOD
+    MusicPlayer.playLoaded();
+}
+loadRoutinePreset(routineType);
+
   }
   
   async function checkPermissionsAndNavigate() {
