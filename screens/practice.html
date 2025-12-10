@@ -32,50 +32,52 @@
       </div>
     </div>
     
-    <!-- BPM Detector (Bottom - Above Controls) -->
-    <div class="position-absolute bottom-0 start-0 end-0 mb-5 pb-5 px-3" style="z-index: 10;">
-      <div class="bg-dark bg-opacity-90 backdrop-blur rounded-3 p-3 border border-purple scale-in">
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-3 flex-grow-1">
-            <div id="bpmPulse" class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(168, 85, 247, 0.2);" aria-hidden="true">
-              <i class="bi bi-music-note-beamed text-purple fs-5"></i>
-            </div>
-            <div class="flex-grow-1">
-              <small class="text-muted d-block">Beat Detection</small>
-              <h5 id="bpmDisplay" class="mb-0 text-purple fw-bold" aria-live="polite" aria-label="BPM detection">-- BPM</h5>
-            </div>
+    <!-- end of video container -->
+  </div>
+
+  <!-- BPM Detector (moved out of video overlay; sits above controls) -->
+  <div class="px-3 pb-2" style="z-index:10;">
+    <div class="bg-dark bg-opacity-90 backdrop-blur rounded-3 p-3 border border-purple scale-in">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
+          <div id="bpmPulse" class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(168, 85, 247, 0.2);" aria-hidden="true">
+            <i class="bi bi-music-note-beamed text-purple fs-5"></i>
           </div>
-          <button class="btn btn-sm btn-outline-purple" onclick="tapSync()" aria-label="Tap to sync with beat">
-            <i class="bi bi-hand-index-thumb me-1" aria-hidden="true"></i>
-            Tap Sync
-          </button>
+          <div class="flex-grow-1">
+            <small class="text-muted d-block">Beat Detection</small>
+            <h5 id="bpmDisplay" class="mb-0 text-purple fw-bold" aria-live="polite" aria-label="BPM detection">-- BPM</h5>
+          </div>
         </div>
-        
-        <!-- Beat Visualizer -->
-        <div class="d-flex gap-1 mt-2" id="beatVisualizer" aria-hidden="true">
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-          <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
-        </div>
-        <!-- Music library picker (appears under beat detection) -->
-        <div class="d-flex justify-content-center mt-3" aria-hidden="false">
-              <button id="libraryPickerBtn" class="btn btn-outline-purple btn-sm" 
-                onclick="showInternalLibrary()" 
-                 aria-label="Choose audio from internal library">
-            <i class="bi bi-music-note-list me-1" aria-hidden="true"></i>
-            Choose From Library
-          </button>
-        </div>
-        <!-- Track choices (per-genre selection) -->
-        <div id="trackChoices" class="d-flex gap-2 justify-content-center flex-wrap mt-3" aria-live="polite"></div>
-        <!-- Internal library picker (hidden by default) -->
-        <div id="internalLibrary" class="bg-dark bg-opacity-95 border border-secondary rounded mt-3 p-2" style="display:none; max-height:220px; overflow:auto;" aria-hidden="true"></div>
+        <button class="btn btn-sm btn-outline-purple" onclick="tapSync()" aria-label="Tap to sync with beat">
+          <i class="bi bi-hand-index-thumb me-1" aria-hidden="true"></i>
+          Tap Sync
+        </button>
       </div>
+
+      <!-- Beat Visualizer -->
+      <div class="d-flex gap-1 mt-2" id="beatVisualizer" aria-hidden="true">
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+        <div class="beat-bar flex-grow-1 bg-secondary rounded" style="height: 4px;"></div>
+      </div>
+      <!-- Music library picker (appears under beat detection) -->
+      <div class="d-flex justify-content-center mt-3" aria-hidden="false">
+        <button id="libraryPickerBtn" class="btn btn-outline-purple btn-sm" 
+          onclick="showInternalLibrary()" 
+           aria-label="Choose audio from internal library">
+          <i class="bi bi-music-note-list me-1" aria-hidden="true"></i>
+          Choose From Library
+        </button>
+      </div>
+      <!-- Track choices (per-genre selection) -->
+      <div id="trackChoices" class="d-flex gap-2 justify-content-center flex-wrap mt-3" aria-live="polite"></div>
+      <!-- Internal library picker (hidden by default) -->
+      <div id="internalLibrary" class="bg-dark bg-opacity-95 border border-secondary rounded mt-3 p-2" style="display:none; max-height:220px; overflow:auto;" aria-hidden="true"></div>
     </div>
   </div>
   
@@ -108,7 +110,7 @@
     
     <!-- Control Buttons -->
     <div class="d-flex gap-2">
-      <button id="pauseBtn" class="btn btn-success flex-grow-1 py-3" onclick="togglePause()" aria-label="Start practice session" aria-pressed="false">
+      <button id="pauseBtn" class="btn btn-success flex-grow-1 py-2" onclick="togglePause()" aria-label="Start practice session" aria-pressed="false">
         <i class="bi bi-play-fill me-2" aria-hidden="true"></i>
         <span id="pauseBtnText">Start Session</span>
       </button>
@@ -117,12 +119,12 @@
           <i id="musicToggleIcon" class="bi bi-volume-up"></i>
         </button>
         <button id="uploadMusicBtn" class="btn btn-outline-secondary" onclick="document.getElementById('musicFileInput').click()" aria-label="Upload track">
-          <i class="bi bi-upload me-1"></i>Upload
+          <i class="bi bi-upload me-1 upload-icon" aria-hidden="true"></i>Upload
         </button>
         <input id="musicFileInput" type="file" accept="audio/*" style="display:none" onchange="handleMusicFile(event)" />
         <div id="currentTrackName" class="small text-muted mt-2" aria-live="polite" style="max-width:120px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">No track selected</div>
       </div>
-      <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()" aria-label="End practice session">
+      <button id="endSessionBtn" class="btn btn-danger flex-grow-1 py-2" onclick="endSession()" aria-label="End practice session">
         <i class="bi bi-stop-fill me-2" aria-hidden="true"></i>
         End Session
       </button>
@@ -197,9 +199,50 @@
   border: 1px solid rgba(255,255,255,0.04);
   font-size: 12px;
 }
+.track-chip.selected {
+  background: linear-gradient(90deg, rgba(168,85,247,0.13), rgba(99,102,241,0.08));
+  border-color: rgba(168,85,247,0.6);
+  box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+}
+.track-btn {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.btn.selected {
+  border-color: rgba(168,85,247,0.6) !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.08);
+  background: linear-gradient(90deg, rgba(168,85,247,0.06), rgba(99,102,241,0.03));
+}
 .music-actions {
   display:flex; gap:6px; align-items:center; justify-content:center; flex:0 0 auto;
 }
+.controls-panel .btn {
+  font-size: 0.95rem;
+}
+#pauseBtn, #endSessionBtn {
+  padding-top: 0.25rem; /* keep padding small but enforce height */
+  padding-bottom: 0.25rem;
+  height: 44px; /* enforce primary button height */
+  min-height: 44px;
+}
+#pauseBtn i, #endSessionBtn i {
+  font-size: 1.05rem;
+}
+#uploadMusicBtn .upload-icon {
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+#uploadMusicBtn {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.9rem;
+  height: 32px; /* small button height */
+  min-height: 32px;
+}
+/* make music toggle also compact */
+#musicToggleBtn { height: 32px; min-height: 32px; padding: 0.15rem 0.4rem; }
 .current-track {
   flex: 0 0 18%;
   text-align: right;
@@ -213,9 +256,10 @@
 /* internal library panel becomes a compact dropdown overlay */
 #internalLibrary {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 70px; /* sits above controls */
+  /* will be positioned dynamically near the picker button */
+  left: 0;
+  top: 0;
+  bottom: auto;
   display: none;
   z-index: 1050;
   min-width: 320px;
@@ -272,7 +316,19 @@ async function initPracticeScreen() {
       }
       if (!routineName && Session && Session.data && Session.data.routineName) routineName = Session.data.routineName;
       if (!routineName) routineName = 'Freestyle';
-      try { renderTrackChoices(routineName); } catch (e) { console.warn('renderTrackChoices failed:', e); }
+      try { await renderTrackChoices(routineName); } catch (e) { console.warn('renderTrackChoices failed:', e); }
+      // Restore last internal selection visually if present
+      try {
+        if (window.Database && Database.getSetting) {
+          const last = await Database.getSetting('lastInternalTrack', null);
+          if (last && last.url) {
+            const el = document.getElementById('currentTrackName');
+            if (el) el.textContent = last.name || basename(last.url);
+            // highlight selection in track choices and internal library (if rendered later)
+            markSelectedTrack(last);
+          }
+        }
+      } catch (e) { /* ignore */ }
     } catch (e) { /* ignore */ }
     
   } catch (error) {
@@ -629,17 +685,19 @@ function renderTrackChoices(routineName) {
       container.appendChild(hint);
       return;
     }
-
+    // Create horizontal track chips that are touch-friendly and selectable
+    const listDiv = document.createElement('div');
+    listDiv.className = 'track-list';
     tracks.slice(0,5).forEach((t, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-sm btn-outline-purple';
-      btn.style.maxWidth = '160px';
-      btn.style.whiteSpace = 'nowrap';
-      btn.style.overflow = 'hidden';
-      btn.style.textOverflow = 'ellipsis';
-      btn.title = basename(t);
-      btn.textContent = basename(t);
-      btn.onclick = async (e) => {
+      const chip = document.createElement('div');
+      chip.className = 'track-chip track-btn';
+      chip.style.maxWidth = '160px';
+      chip.title = basename(t);
+      chip.textContent = basename(t);
+      chip.dataset.genre = key;
+      chip.dataset.index = idx;
+      chip.dataset.url = t;
+      chip.onclick = async (e) => {
         e.preventDefault();
         try {
           await MusicPlayer.playTrack(key, idx, { loop: true });
@@ -651,12 +709,19 @@ function renderTrackChoices(routineName) {
           }
           const icon = document.getElementById('musicToggleIcon');
           if (icon) icon.className = 'bi bi-volume-up';
+          // persist last internal selection
+          try { if (window.Database && Database.saveSetting) {
+              await Database.saveSetting('lastInternalTrack', { genre: key, index: idx, url: t, name: basename(t) });
+            }} catch(e){/* ignore */}
+          // visually mark selected
+          markSelectedTrack({ genre: key, index: idx, url: t, name: basename(t) });
         } catch (err) {
           console.warn('Failed to play selected track:', err);
         }
       };
-      container.appendChild(btn);
+      listDiv.appendChild(chip);
     });
+    container.appendChild(listDiv);
   } catch (e) {
     console.warn('renderTrackChoices error:', e);
   }
@@ -722,10 +787,13 @@ function showInternalLibrary() {
 
       grouped[genre].slice(0,5).forEach(item => {
         const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-outline-purple';
+        btn.className = 'btn btn-sm btn-outline-purple track-btn';
         btn.style.maxWidth = '160px';
         btn.title = basename(item.url);
         btn.textContent = basename(item.url);
+        btn.dataset.url = item.url;
+        btn.dataset.genre = genre;
+        btn.dataset.index = item.index;
         btn.onclick = async (e) => {
           e.preventDefault();
           try {
@@ -739,6 +807,10 @@ function showInternalLibrary() {
               Session.data.trackName = basename(item.url);
               Session.data.trackSource = 'internal';
             }
+            // persist selection for quick restore next time
+            try { if (window.Database && Database.saveSetting) {
+                await Database.saveSetting('lastInternalTrack', { genre: genre, index: item.index, url: item.url, name: basename(item.url) });
+              }} catch (e) { /* ignore */ }
             // close library UI
             container.style.display = 'none';
             container.setAttribute('aria-hidden', 'true');
@@ -760,11 +832,90 @@ function showInternalLibrary() {
     hint.textContent = 'Tap a track to play. Tap the button again to close.';
     container.appendChild(hint);
 
+    // Position the panel near the picker button so it doesn't block camera
+    const picker = document.getElementById('libraryPickerBtn');
+    if (picker) {
+      const rect = picker.getBoundingClientRect();
+      // place above the controls-panel and centered to the picker
+      const panel = container;
+      const panelWidth = Math.min(window.innerWidth * 0.9, 420);
+      panel.style.minWidth = Math.min(panelWidth, 420) + 'px';
+      // Use fixed positioning near the picker for stable overlay behavior
+      panel.style.position = 'fixed';
+      panel.style.left = Math.max(8, (rect.left + rect.width / 2) - (panelWidth / 2)) + 'px';
+      // place slightly above the picker button
+      panel.style.top = Math.max(8, rect.top - panel.offsetHeight - 12) + 'px';
+      panel.style.bottom = 'auto';
+      panel.style.zIndex = 2000;
+    }
+
     container.style.display = 'block';
     container.setAttribute('aria-hidden', 'false');
+
+    // Close when clicking outside or pressing Escape
+    setTimeout(() => {
+      const onDocClick = (ev) => {
+        const c = document.getElementById('internalLibrary');
+        const btn = document.getElementById('libraryPickerBtn');
+        if (!c) return;
+        if (c.contains(ev.target) || (btn && btn.contains(ev.target))) return;
+        c.style.display = 'none';
+        c.setAttribute('aria-hidden', 'true');
+        document.removeEventListener('click', onDocClick);
+        document.removeEventListener('keydown', onEsc);
+      };
+      const onEsc = (ev) => {
+        if (ev.key === 'Escape') {
+          const c = document.getElementById('internalLibrary');
+          if (!c) return;
+          c.style.display = 'none';
+          c.setAttribute('aria-hidden', 'true');
+          document.removeEventListener('click', onDocClick);
+          document.removeEventListener('keydown', onEsc);
+        }
+      };
+      document.addEventListener('click', onDocClick);
+      document.addEventListener('keydown', onEsc);
+    }, 50);
   } catch (e) {
     console.warn('showInternalLibrary error:', e);
   }
+}
+
+// Mark selected track visually in both trackChoices and internalLibrary
+function markSelectedTrack(sel) {
+  try {
+    if (!sel) return;
+    const name = sel.name || basename(sel.url || sel);
+    // update current track name
+    const cur = document.getElementById('currentTrackName');
+    if (cur) cur.textContent = name;
+
+    // clear previous selections
+    document.querySelectorAll('.track-chip.selected').forEach(n => n.classList.remove('selected'));
+    // mark trackChoices chips
+    document.querySelectorAll('#trackChoices .track-chip').forEach(ch => {
+      if (ch.dataset && (ch.dataset.url === sel.url || (sel.genre && ch.dataset.genre === sel.genre && String(ch.dataset.index) === String(sel.index)))) {
+        ch.classList.add('selected');
+      }
+    });
+
+    // mark internal library buttons
+    const lib = document.getElementById('internalLibrary');
+    if (lib) {
+      lib.querySelectorAll('button').forEach(b => {
+        b.classList.remove('selected');
+        const url = b.dataset && b.dataset.url ? b.dataset.url : null;
+        // some internal buttons are plain; compare by text if needed
+        if (url && sel.url && url === sel.url) {
+          b.classList.add('selected');
+        } else if (!url && sel.name && b.textContent && b.textContent.trim() === sel.name) {
+          b.classList.add('selected');
+        }
+      });
+    }
+
+  } catch (e) { /* ignore */ }
 }
 
 
