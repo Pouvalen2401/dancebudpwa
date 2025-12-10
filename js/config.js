@@ -45,25 +45,25 @@
   // Each genre provides a small curated set of 5 tracks the user can choose from.
   AUDIO_MAP: {
     'hiphop': [
-      'assets/audio/hiphop-1.mp3',
-      'assets/audio/hiphop-2.mp3',
-      'assets/audio/hiphop-3.mp3',
-      'assets/audio/hiphop-4.mp3',
-      'assets/audio/hiphop-5.mp3'
+      'asset/icon/audio/hiphop-1.mp3',
+      'asset/icon/audio/hiphop-2.mp3',
+      'asset/icon/audio/hiphop-3.mp3',
+      'asset/icon/audio/hiphop-4.mp3',
+      'asset/icon//audio/hiphop-5.mp3'
     ],
     'contemporary': [
-      'assets/audio/contemporary-1.mp3',
-      'assets/audio/contemporary-2.mp3',
-      'assets/audio/contemporary-3.mp3',
-      'assets/audio/contemporary-4.mp3',
-      'assets/audio/contemporary-5.mp3'
+      'asset/icon/audio/contemporary-1.mp3',
+      'asset/icon/audio/contemporary-2.mp3',
+      'asset/icon/audio/contemporary-3.mp3',
+      'asset/icon/audio/contemporary-4.mp3',
+      'asset/icon/audio/contemporary-5.mp3'
     ],
     'ballet': [
-      'assets/audio/ballet-1.mp3',
-      'assets/audio/ballet-2.mp3',
-      'assets/audio/ballet-3.mp3',
-      'assets/audio/ballet-4.mp3',
-      'assets/audio/ballet-5.mp3'
+      'asset/audio/ballet-1.mp3',
+      'asset/audio/ballet-2.mp3',
+      'asset/audio/ballet-3.mp3',
+      'asset/audio/ballet-4.mp3',
+      'asset/audio/ballet-5.mp3'
     ],
     'latin': [
       'assets/audio/latin-1.mp3',

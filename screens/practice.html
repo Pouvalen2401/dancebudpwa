@@ -110,7 +110,7 @@
     
     <!-- Control Buttons -->
     <div class="d-flex gap-2">
-      <button id="pauseBtn" class="btn btn-success flex-grow-1 py-2" onclick="togglePause()" aria-label="Start practice session" aria-pressed="false">
+      <button id="pauseBtn" class="btn btn-success flex-grow-1 py-3" onclick="togglePause()" aria-label="Start practice session" aria-pressed="false">
         <i class="bi bi-play-fill me-2" aria-hidden="true"></i>
         <span id="pauseBtnText">Start Session</span>
       </button>
@@ -119,12 +119,12 @@
           <i id="musicToggleIcon" class="bi bi-volume-up"></i>
         </button>
         <button id="uploadMusicBtn" class="btn btn-outline-secondary" onclick="document.getElementById('musicFileInput').click()" aria-label="Upload track">
-          <i class="bi bi-upload me-1 upload-icon" aria-hidden="true"></i>Upload
+          <i class="bi bi-upload me-1" aria-hidden="true"></i>Upload
         </button>
         <input id="musicFileInput" type="file" accept="audio/*" style="display:none" onchange="handleMusicFile(event)" />
         <div id="currentTrackName" class="small text-muted mt-2" aria-live="polite" style="max-width:120px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">No track selected</div>
       </div>
-      <button id="endSessionBtn" class="btn btn-danger flex-grow-1 py-2" onclick="endSession()" aria-label="End practice session">
+      <button class="btn btn-danger flex-grow-1 py-3" onclick="endSession()" aria-label="End practice session">
         <i class="bi bi-stop-fill me-2" aria-hidden="true"></i>
         End Session
       </button>
@@ -222,27 +222,6 @@
 .controls-panel .btn {
   font-size: 0.95rem;
 }
-#pauseBtn, #endSessionBtn {
-  padding-top: 0.25rem; /* keep padding small but enforce height */
-  padding-bottom: 0.25rem;
-  height: 44px; /* enforce primary button height */
-  min-height: 44px;
-}
-#pauseBtn i, #endSessionBtn i {
-  font-size: 1.05rem;
-}
-#uploadMusicBtn .upload-icon {
-  font-size: 0.95rem;
-  vertical-align: middle;
-}
-#uploadMusicBtn {
-  padding: 0.15rem 0.45rem;
-  font-size: 0.9rem;
-  height: 32px; /* small button height */
-  min-height: 32px;
-}
-/* make music toggle also compact */
-#musicToggleBtn { height: 32px; min-height: 32px; padding: 0.15rem 0.4rem; }
 .current-track {
   flex: 0 0 18%;
   text-align: right;

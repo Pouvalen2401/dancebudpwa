@@ -100,11 +100,21 @@ const Session = {
     try {
       const vol = (window.AppConfig && window.AppConfig.MUSIC_VOLUME) || 0.8;
       if (typeof MusicPlayer !== 'undefined') {
-        // Try to play by routine name (resolved via AppConfig.AUDIO_MAP inside MusicPlayer)
-        MusicPlayer.play(this.data.routineName, { loop: true, volume: vol }).catch(err => {
-          // If autoplay blocked, keep silent and user can unmute later
-          console.warn('MusicPlayer.play error (likely autoplay blocked):', err);
-        });
+        // If the user has loaded a local file (uploaded), do not override it.
+        if (MusicPlayer.loadedObjectUrl) {
+          // Ensure the loaded file continues playing if already playing; otherwise leave control to user
+          if (MusicPlayer.isPlaying) {
+            // already playing user's track — keep it
+          } else {
+            // Do not auto-play the user's file here (respect user gesture/autoplay rules)
+          }
+        } else if (!MusicPlayer.isPlaying) {
+          // Try to play by routine name (resolved via AppConfig.AUDIO_MAP inside MusicPlayer)
+          MusicPlayer.play(this.data.routineName, { loop: true, volume: vol }).catch(err => {
+            // If autoplay blocked, keep silent and user can unmute later
+            console.warn('MusicPlayer.play error (likely autoplay blocked):', err);
+          });
+        }
       }
     } catch (e) {
       console.warn('Session: MusicPlayer start error:', e);
@@ -175,7 +185,15 @@ const Session = {
     try {
       const vol = (window.AppConfig && window.AppConfig.MUSIC_VOLUME) || 0.8;
       if (typeof MusicPlayer !== 'undefined') {
-        MusicPlayer.play(this.data.routineName, { loop: true, volume: vol }).catch(() => {});
+        // Do not override a user's uploaded track on resume
+        if (MusicPlayer.loadedObjectUrl) {
+          // If user's file was playing before pause, try to resume it
+          if (!MusicPlayer.isPlaying) {
+            try { MusicPlayer.playLoaded({ loop: true, volume: vol }).catch(() => {}); } catch(e) {}
+          }
+        } else if (!MusicPlayer.isPlaying) {
+          MusicPlayer.play(this.data.routineName, { loop: true, volume: vol }).catch(() => {});
+        }
       }
     } catch (e) {
       console.warn('Session: MusicPlayer resume error:', e);
