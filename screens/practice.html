@@ -269,15 +269,28 @@ async function initPracticeScreen() {
     } catch (e) {
       console.warn('Could not fully reset session state:', e);
     }
+    // Request permissions in one consolidated flow (camera, mic, motion)
+    try {
+      if (typeof PermissionsManager !== 'undefined' && PermissionsManager.requestAll) {
+        await PermissionsManager.requestAll();
+      }
+    } catch (e) {
+      console.warn('PermissionsManager.requestAll() failed or was denied:', e);
+    }
 
     // Get video and canvas elements
     const video = document.getElementById('practiceVideo');
     const canvas = document.getElementById('poseCanvas');
-    
+
     // Start camera preview only. Session (detection, audio, motion, timer)
     // will start when the user clicks the "Start Session" button.
-    await CameraModule.startCamera(video, canvas);
-    console.log('✅ Camera preview started (session not started)');
+    try {
+      await CameraModule.startCamera(video, canvas);
+      console.log('✅ Camera preview started (session not started)');
+    } catch (e) {
+      console.warn('CameraModule.startCamera failed (permissions maybe denied):', e);
+      throw e;
+    }
     // Try to restore previously chosen audio handle (Chromium-only). This will
     // load the file into MusicPlayer but will not autoplay.
     try {
